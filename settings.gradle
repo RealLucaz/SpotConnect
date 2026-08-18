@@ -1,0 +1,14 @@
+pluginManagement {
+    repositories {
+        // Where Gradle looks for the fabric-loom plugin (the Fabric build tool).
+        maven {
+            name = 'Fabric'
+            url = 'https://maven.fabricmc.net/'
+        }
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
+// This should match the project folder name to keep IntelliJ happy.
+rootProject.name = 'spotconnect'

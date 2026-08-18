@@ -1,0 +1,58 @@
+plugins {
+    // fabric-loom is the Gradle plugin that knows how to build Fabric mods
+    // (download Minecraft, remap mappings, run a dev client, etc.)
+    id 'fabric-loom' version '1.9-SNAPSHOT'
+    id 'java'
+}
+
+version = project.mod_version
+group = project.maven_group
+
+base {
+    archivesName = project.archives_base_name
+}
+
+repositories {
+    mavenCentral()
+    maven {
+        name = 'Fabric'
+        url = 'https://maven.fabricmc.net/'
+    }
+}
+
+dependencies {
+    // The Minecraft version we build against.
+    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+
+    // Mojang's official (deobfuscated) names.
+    mappings loom.officialMojangMappings()
+
+    // Fabric loader + the Fabric API (gives us keybinding + client-tick helpers).
+    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+
+    // NOTE: deliberately NO embedded-browser library. Playback runs in a dedicated
+    // real Chrome process launched by the mod (see browser/ChromeLauncher). Embedding
+    // was ruled out: the CEF builds available to us lack AAC, and Widevine VMP signing
+    // makes Spotify DRM unusable in an unsigned embedded browser.
+}
+
+processResources {
+    inputs.property "version", project.version
+    // Substitutes ${version} inside fabric.mod.json at build time.
+    filesMatching("fabric.mod.json") {
+        expand "version": project.version
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    it.options.release = 21
+    // -processing: we use annotations (@NotNull) with no annotation processor, which
+    // is expected and would otherwise emit a warning on every build.
+    it.options.compilerArgs << '-Xlint:all,-processing'
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+}
