@@ -124,7 +124,7 @@ public final class SpotifyOAuth {
         }
 
         String authUrl = "https://accounts.spotify.com/authorize"
-                + "?client_id=" + SpotifyTokenManager.enc(SpotifyConfig.CLIENT_ID)
+                + "?client_id=" + SpotifyTokenManager.enc(SpotifyConfig.clientId())
                 + "&response_type=code"
                 + "&redirect_uri=" + SpotifyTokenManager.enc(SpotifyConfig.REDIRECT_URI)
                 + "&code_challenge_method=S256"
@@ -154,7 +154,7 @@ public final class SpotifyOAuth {
             String form = "grant_type=authorization_code"
                     + "&code=" + SpotifyTokenManager.enc(code)
                     + "&redirect_uri=" + SpotifyTokenManager.enc(SpotifyConfig.REDIRECT_URI)
-                    + "&client_id=" + SpotifyTokenManager.enc(SpotifyConfig.CLIENT_ID)
+                    + "&client_id=" + SpotifyTokenManager.enc(SpotifyConfig.clientId())
                     + "&code_verifier=" + SpotifyTokenManager.enc(verifier);
             HttpResponse<String> res = HTTP.send(HttpRequest.newBuilder()
                             .uri(URI.create("https://accounts.spotify.com/api/token"))

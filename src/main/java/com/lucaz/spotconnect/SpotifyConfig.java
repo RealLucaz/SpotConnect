@@ -1,5 +1,7 @@
 package com.lucaz.spotconnect;
 
+import com.lucaz.spotconnect.config.ModConfig;
+
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
@@ -15,8 +17,24 @@ public final class SpotifyConfig {
     private SpotifyConfig() { }
 
     // ---- Spotify application identity -------------------------------------
-    /** Public identifier, not a secret. We use PKCE, so there's no client secret anywhere. */
-    public static final String CLIENT_ID = "402c93e3bad44b4885fb00f3ea254e76";
+    /**
+     * The user's own Spotify app id, from the setup walkthrough.
+     *
+     * Not shipped with one. A Spotify app in development mode only works for 25 accounts
+     * that the app owner adds by hand, so a baked-in id would fail for everyone but the
+     * author - and every user would share the same rate-limit bucket. Each install brings
+     * its own app instead.
+     *
+     * Public identifier, not a secret. PKCE means there is no client secret anywhere.
+     */
+    public static String clientId() {
+        return ModConfig.get().string(ModConfig.Defaults.AUTH_CLIENT_ID).trim();
+    }
+
+    /** False until the walkthrough has been completed. */
+    public static boolean hasClientId() {
+        return !clientId().isEmpty();
+    }
 
     // Has to be the literal 127.0.0.1; Spotify rejects "localhost" in the redirect URI.
 

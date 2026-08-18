@@ -83,6 +83,10 @@ public final class ModConfig {
         public static final String NET_PAGE_SIZE     = "network.pageSize";
 
         // ---- startup ---------------------------------------------------------
+        // ---- account -----------------------------------------------------
+        /** The user's own Spotify app id. Empty until they finish the setup walkthrough. */
+        public static final String AUTH_CLIENT_ID    = "auth.clientId";
+
         public static final String START_AUTOCONNECT = "startup.autoConnect";
         public static final String START_OPEN_HOME   = "startup.openHome";
     }
@@ -141,6 +145,7 @@ public final class ModConfig {
         put(Defaults.NET_SEARCH_DELAY, 8);
         put(Defaults.NET_PAGE_SIZE, 50);
 
+        put(Defaults.AUTH_CLIENT_ID, "");
         put(Defaults.START_AUTOCONNECT, true);
         put(Defaults.START_OPEN_HOME, true);
     }
@@ -156,6 +161,11 @@ public final class ModConfig {
     }
 
     // ---- typed access ------------------------------------------------------
+
+    public String string(String key) {
+        Object v = values.get(key);
+        return v == null ? "" : String.valueOf(v);
+    }
 
     public boolean bool(String key) {
         return values.get(key) instanceof Boolean b && b;
@@ -243,9 +253,18 @@ public final class ModConfig {
             int i = 0;
             for (Map.Entry<String, Object> e : values.entrySet()) {
                 Object v = e.getValue();
-                String rendered = v instanceof Double d
-                        ? String.format(Locale.ROOT, "%.4f", d)
-                        : String.valueOf(v);
+                // Strings must be quoted. String.valueOf() renders them bare, which wrote
+                // an unquoted client id and made the whole file unparseable - so the next
+                // load fell back to defaults and silently forgot it. Nothing caught this
+                // earlier because every other setting is a boolean, int or double.
+                String rendered;
+                if (v instanceof Double d) {
+                    rendered = String.format(Locale.ROOT, "%.4f", d);
+                } else if (v instanceof String str) {
+                    rendered = Json.quote(str);
+                } else {
+                    rendered = String.valueOf(v);
+                }
                 sb.append("  ").append(Json.quote(e.getKey())).append(": ").append(rendered);
                 if (++i < values.size()) sb.append(',');
                 sb.append('\n');

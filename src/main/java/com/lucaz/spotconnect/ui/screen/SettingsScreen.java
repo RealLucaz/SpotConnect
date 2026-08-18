@@ -1,6 +1,7 @@
 package com.lucaz.spotconnect.ui.screen;
 
 import com.lucaz.spotconnect.SpotConnectClient;
+import com.lucaz.spotconnect.SpotifyConfig;
 import com.lucaz.spotconnect.config.ModConfig;
 import com.lucaz.spotconnect.config.ModConfig.Defaults;
 import com.lucaz.spotconnect.spotify.SpotifyApiClient;
@@ -161,6 +162,21 @@ public class SettingsScreen extends SpotifyScreen {
                             service.clearCache();
                             service.invalidateSidebarPlaylists();
                             service.setStatus("Cached library data cleared.");
+                        }))));
+
+        categories.add(new Category("Account", Icons::gear, "auth.", List.of(
+                new Option.Info("Client ID", () -> {
+                    String id = SpotifyConfig.clientId();
+                    if (id.isEmpty()) return "not set";
+                    // Never show the whole thing on a screen someone might be streaming.
+                    return id.substring(0, 6) + "..." + id.substring(id.length() - 4);
+                }),
+                new Option.Info("Connection", () -> service.stateLabel()),
+                new Option.Action("Reset setup",
+                        "Forgets your Client ID and Spotify login, then starts the walkthrough again",
+                        "Reset", () -> {
+                            service.resetSetup();
+                            if (minecraft != null) minecraft.setScreen(new SetupScreen());
                         }))));
 
         categories.add(new Category("Startup", Icons::gear, "startup.", List.of(

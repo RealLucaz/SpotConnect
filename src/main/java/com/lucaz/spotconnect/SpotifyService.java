@@ -712,6 +712,27 @@ public final class SpotifyService implements SpotifyDeviceManager.Host, SpotifyA
     public void clearCache() { cache.clear(); }
 
     /**
+     * Puts this install back to how it was before setup: no client id, no Spotify
+     * session, no remembered device.
+     *
+     * Shuts the service down first so nothing writes the files back afterwards, and
+     * clears the id last so a half-finished reset never leaves a client id pointing at
+     * tokens that were already deleted.
+     */
+    public void resetSetup() {
+        try { shutdown(); } catch (Exception ignored) { }
+        tokens.clear();
+        try { java.nio.file.Files.deleteIfExists(SpotifyConfig.DEVICE_FILE); }
+        catch (Exception ignored) { }
+        ModConfig cfg = ModConfig.get();
+        cfg.set(ModConfig.Defaults.AUTH_CLIENT_ID, "");
+        cfg.save();
+        state = ConnectionState.IDLE;
+        setStatus("Setup cleared. Press M to start again.");
+        LOGGER.info("[SPOTIFY] Setup reset - client id, tokens and device forgotten.");
+    }
+
+    /**
      * Like {@link #async}, but serves a recent result without touching the network.
      *
      * @param key   identifies the request (endpoint plus any id)

@@ -1,5 +1,6 @@
 package com.lucaz.spotconnect.ui.screen;
 
+import com.lucaz.spotconnect.SpotifyConfig;
 import com.lucaz.spotconnect.SpotifyService;
 import com.lucaz.spotconnect.ui.Theme;
 import com.lucaz.spotconnect.ui.UiText;
@@ -23,22 +24,60 @@ public class SetupScreen extends Screen {
     private Button connectButton;
     /** Drives the "Connecting..." ellipsis so the screen never looks frozen. */
     private int animTicks;
+    /** Set during init so the status line can never land on a button. */
+    private int statusY;
 
-    public SetupScreen() {
-        super(Component.literal("Spotify"));
+    /** Where Close and Escape go back to. Null means simply close the UI. */
+    private final Screen parent;
+
+    public SetupScreen() { this(null); }
+
+    /** Used by the Mod Menu entry, so closing returns to the mod list. */
+    public SetupScreen(Screen parent) {
+        super(Component.literal("SpotConnect"));
+        this.parent = parent;
+    }
+
+    @Override
+    public void onClose() {
+        if (minecraft != null) minecraft.setScreen(parent);
     }
 
     @Override
     protected void init() {
         super.init();
         int cx = width / 2;
-        connectButton = Button.builder(Component.literal("CONNECT SPOTIFY"),
-                        b -> service.connect())
-                .bounds(cx - 80, height / 2 + 6, 160, 20)
+        // Laid out downward from one anchor rather than as offsets either side of the
+        // middle. The old version drew "Premium is required" at +34 and put a button at
+        // +30, so they overlapped.
+        int y = contentTop() + 96;
+
+        boolean ready = SpotifyConfig.hasClientId();
+        connectButton = Button.builder(
+                        Component.literal(ready ? "Connect Spotify" : "Start setup"),
+                        b -> {
+                            if (SpotifyConfig.hasClientId()) service.connect();
+                            else if (minecraft != null) {
+                                minecraft.setScreen(new SetupWizardScreen(this));
+                            }
+                        })
+                .bounds(cx - 90, y, 180, 20)
                 .build();
         addRenderableWidget(connectButton);
+        y += 28;
+
+        if (ready) {
+            // Still reachable afterwards, for a typo or a second Spotify account.
+            addRenderableWidget(Button.builder(Component.literal("Change Client ID"),
+                            b -> { if (minecraft != null) minecraft.setScreen(new SetupWizardScreen(this)); })
+                    .bounds(cx - 90, y, 180, 18).build());
+            y += 26;
+        }
+
+        statusY = y + 6;
+
         addRenderableWidget(Button.builder(Component.literal("Close"), b -> onClose())
-                .bounds(cx - 50, height / 2 + 62, 100, 20)
+                .bounds(cx - 90, height - 34, 180, 20)
                 .build());
     }
 
@@ -50,29 +89,55 @@ public class SetupScreen extends Screen {
             minecraft.setScreen(new HomeScreen());
             return;
         }
-        if (connectButton != null) connectButton.active = !service.isBusy();
+        if (connectButton != null) {
+            connectButton.active = !service.isBusy() || !SpotifyConfig.hasClientId();
+        }
+    }
+
+    /**
+     * Everything behind the buttons. Same reason as the walkthrough screen:
+     * Screen.render() opens by blurring the framebuffer, so anything drawn before
+     * super.render() gets the blur painted over it.
+     */
+    /** Top of the centred block. Keeps the whole page anchored to one number. */
+    private int contentTop() {
+        return Math.max(16, height / 2 - 128);
+    }
+
+    @Override
+    public void renderBackground(@NotNull GuiGraphics g, int mouseX, int mouseY, float partial) {
+        g.fill(0, 0, width, height, Theme.BACKGROUND);
+        int cx = width / 2;
+        int y = contentTop();
+
+        // A faint wash behind the block so the page is not a flat rectangle.
+        g.fillGradient(0, 0, width, height / 2, Theme.alpha(Theme.GREEN, 0.10f), 0x00000000);
+
+        g.drawCenteredString(font, "SpotConnect", cx, y, Theme.GREEN);
+        g.fill(cx - 34, y + 13, cx + 34, y + 14, Theme.GREEN_DIM);
+        y += 30;
+
+        g.drawCenteredString(font, "Connect your Spotify account", cx, y, Theme.TEXT);
+        y += 18;
+
+        g.drawCenteredString(font, "Minecraft becomes the interface.", cx, y, Theme.TEXT_MUTED);
+        y += 12;
+        g.drawCenteredString(font, "Playback runs in a hidden browser window,", cx, y,
+                Theme.TEXT_MUTED);
+        y += 12;
+        g.drawCenteredString(font, "so the Spotify app never needs to be open.", cx, y,
+                Theme.TEXT_MUTED);
     }
 
     @Override
     public void render(@NotNull GuiGraphics g, int mouseX, int mouseY, float partial) {
-        g.fill(0, 0, width, height, Theme.BACKGROUND);
-        int cx = width / 2;
-        int top = height / 2;
-
-        // Wordmark
-        g.drawCenteredString(font, "SPOTIFY", cx, top - 62, Theme.GREEN);
-        g.fill(cx - 30, top - 48, cx + 30, top - 47, Theme.GREEN_DIM);
-
-        g.drawCenteredString(font, "Connect your Spotify account", cx, top - 34, Theme.TEXT);
-        g.drawCenteredString(font, "Minecraft becomes the interface;", cx, top - 18,
-                Theme.TEXT_MUTED);
-        g.drawCenteredString(font, "playback runs in a dedicated background browser.", cx,
-                top - 8, Theme.TEXT_MUTED);
-
         super.render(g, mouseX, mouseY, partial);
+        int cx = width / 2;
 
-        g.drawCenteredString(font, "Spotify Premium is required.", cx, top + 34,
-                Theme.TEXT_FAINT);
+        g.drawCenteredString(font, SpotifyConfig.hasClientId()
+                        ? "Spotify Premium is required."
+                        : "Needs Spotify Premium and a free Spotify app.",
+                cx, contentTop() + 78, Theme.TEXT_FAINT);
 
         String status = service.status();
         if (status != null && !status.isEmpty()) {
@@ -82,7 +147,7 @@ public class SetupScreen extends Screen {
             }
             int color = service.state() == SpotifyService.ConnectionState.FAILED
                     ? Theme.TEXT_ERROR : Theme.TEXT;
-            g.drawCenteredString(font, UiText.fit(shown, width - 20), cx, top + 48, color);
+            g.drawCenteredString(font, UiText.fit(shown, width - 20), cx, statusY, color);
         }
     }
 

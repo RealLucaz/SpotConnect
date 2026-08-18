@@ -91,7 +91,7 @@ public final class SpotifyTokenManager {
         try {
             String form = "grant_type=refresh_token"
                     + "&refresh_token=" + enc(refreshToken)
-                    + "&client_id=" + enc(SpotifyConfig.CLIENT_ID);
+                    + "&client_id=" + enc(SpotifyConfig.clientId());
             HttpResponse<String> res = HTTP.send(HttpRequest.newBuilder()
                             .uri(URI.create("https://accounts.spotify.com/api/token"))
                             .header("Content-Type", "application/x-www-form-urlencoded")

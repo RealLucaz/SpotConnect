@@ -1,5 +1,6 @@
 package com.lucaz.spotconnect;
 
+import com.lucaz.spotconnect.SpotifyConfig;
 import com.lucaz.spotconnect.ui.MiniPlayerHud;
 import com.lucaz.spotconnect.ui.screen.HomeScreen;
 import com.lucaz.spotconnect.ui.screen.SetupScreen;
@@ -56,6 +57,7 @@ public final class SpotConnectClient implements ClientModInitializer {
         ClientLifecycleEvents.CLIENT_STARTED.register(client -> {
             if (ModConfig.get()
                         .bool(ModConfig.Defaults.START_AUTOCONNECT)
+                    && SpotifyConfig.hasClientId()
                     && SpotifyService.hasStoredAuthorizationOnDisk()) {
                 SpotifyService.get().restoreIfPossible();
             }
@@ -124,6 +126,13 @@ public final class SpotConnectClient implements ClientModInitializer {
         if (current instanceof SpotifyScreen
                 || current instanceof SetupScreen) {
             return;   // already open
+        }
+        // No client id means nothing can work yet, whatever else is on disk. A stored
+        // token from a previous app is useless without the app it was issued for, so this
+        // has to come before the stored-authorization check below.
+        if (!SpotifyConfig.hasClientId()) {
+            client.setScreen(new SetupScreen());
+            return;
         }
         SpotifyService service = SpotifyService.get();
         // Straight into the library whenever we are connected OR a silent restore is
