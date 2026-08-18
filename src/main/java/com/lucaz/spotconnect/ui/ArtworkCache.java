@@ -25,6 +25,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import com.lucaz.spotconnect.config.ModConfig;
+import java.util.Locale;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Downloads album/artist art and hands back a Minecraft texture.
@@ -182,7 +184,7 @@ public final class ArtworkCache {
         g.fillGradient(x, y, x + size, y + size,
                 Theme.alpha(0xFFFFFFFF, 0.10f), Theme.alpha(0xFF000000, 0.25f));
         if (size >= 12) {
-            String initial = label.trim().substring(0, 1).toUpperCase(java.util.Locale.ROOT);
+            String initial = label.trim().substring(0, 1).toUpperCase(Locale.ROOT);
             var font = Minecraft.getInstance().font;
             g.drawString(font, initial,
                     x + (size - font.width(initial)) / 2, y + (size - 8) / 2,
@@ -311,10 +313,10 @@ public final class ArtworkCache {
         }
     }
 
-    private static final java.util.concurrent.atomic.AtomicInteger FAILURES =
-            new java.util.concurrent.atomic.AtomicInteger();
-    private static final java.util.concurrent.atomic.AtomicInteger LOADED =
-            new java.util.concurrent.atomic.AtomicInteger();
+    private static final AtomicInteger FAILURES =
+            new AtomicInteger();
+    private static final AtomicInteger LOADED =
+            new AtomicInteger();
 
     /** Diagnostics for the settings screen: "42 loaded, 0 failed". */
     public static String stats() {

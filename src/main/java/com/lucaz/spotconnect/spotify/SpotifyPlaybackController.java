@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import java.net.http.HttpResponse;
 import java.util.Map;
 import com.lucaz.spotconnect.SpotifyConfig;
+import java.util.List;
 
 /**
  * Playback commands to our dedicated web player, and reading back what it's doing.
@@ -55,7 +56,7 @@ public final class SpotifyPlaybackController {
         }
         Map<?, ?> tracks = (Map<?, ?>) ((Map<?, ?>) Json.parse(res.body())).get("tracks");
         if (tracks == null) return null;
-        if (!(tracks.get("items") instanceof java.util.List<?> items) || items.isEmpty()) return null;
+        if (!(tracks.get("items") instanceof List<?> items) || items.isEmpty()) return null;
         return SpotifyModels.trackFrom((Map<?, ?>) items.get(0), null);
     }
 
@@ -122,7 +123,7 @@ public final class SpotifyPlaybackController {
      * play the collection is to send the track URIs. Capped at 50: Spotify rejects very
      * large bodies, and 50 is plenty of runway before the user picks something else.
      */
-    public Result playTracks(java.util.List<Track> tracks, int startIndex, String label) {
+    public Result playTracks(List<Track> tracks, int startIndex, String label) {
         if (tracks == null || tracks.isEmpty()) return new Result(false, "Nothing to play.");
         if (deviceQuery() == null) return NO_DEVICE;
         int from = Math.max(0, Math.min(startIndex, tracks.size() - 1));

@@ -15,18 +15,15 @@ import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 
 import java.net.URI;
-import java.util.List;
 
 /**
- * Ten-step walkthrough for creating a Spotify app and pasting its id in.
+ * Walkthrough for creating a Spotify app, pasting its id in, and connecting.
  *
- * Every install needs its own Spotify app - see {@link SpotifyConfig#clientId()} for why -
- * which is a real chunk of work to ask of someone who just wanted music in Minecraft. So
- * this spells out every click rather than saying "create an app and paste the id".
+ * Every install needs its own app; {@link SpotifyConfig#clientId()} explains why.
  *
- * The two steps people get wrong are the redirect URI (one wrong character and login fails
- * with an unhelpful error) and finding the client id. Neither is typed by hand: the URI has
- * a copy button, and the id has a paste button with live validation.
+ * Nothing important is typed by hand. The redirect URI gets a copy button because one
+ * wrong character fails at login with a useless error, and the client id gets a paste
+ * button with validation.
  */
 public class SetupWizardScreen extends Screen {
 

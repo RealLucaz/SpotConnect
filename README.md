@@ -14,7 +14,7 @@ Minecraft 1.21.1
       v
 Spotify Minecraft Mod
       |
-      +-- ui/          setup screen + test player (Minecraft-native)
+      +-- ui/          setup walkthrough, library UI, player (Minecraft-native)
       +-- auth/        OAuth2 PKCE, token refresh, Web Player sign-in flow
       +-- spotify/     Web API client, device identification, playback commands
       +-- browser/     dedicated Chrome: launch, track, show/hide, page state
@@ -33,19 +33,28 @@ The Chrome window is the **playback engine**, not the interface. It lives off-sc
 no taskbar button and is only ever brought forward when Spotify genuinely needs a sign-in.
 The Spotify **desktop app does not need to be running**.
 
+## Requirements
+
+- **Windows.** The browser layer uses PowerShell and Win32 APIs. On macOS or Linux the
+  mod loads but tells you it cannot run, rather than failing halfway.
+- **Spotify Premium.** The Web API playback endpoints are Premium-only.
+- **Google Chrome** installed.
+- **Your own free Spotify app.** See below.
+
 ## Using it
 
-1. Press **M** (rebindable in Options → Controls → SpotConnect Premium).
-2. Click **CONNECT SPOTIFY**.
-3. First time only: your normal browser opens so you can grant the mod API access.
-4. If the dedicated profile is not signed in, Spotify's real sign-in page appears
-   on screen. Enter your credentials and any 6-digit verification code **there**.
-5. The moment Spotify accepts the login the window disappears by itself.
-6. The test player opens: type a track name, press **PLAY**.
+Press **M** (rebindable in Options → Controls). First run opens a 12-step walkthrough
+that covers everything, including creating the Spotify app.
 
-Sign-in is remembered, so steps 3-5 do not repeat on later launches.
+The walkthrough exists because a Spotify app in development mode only works for 25
+accounts that the app owner adds by hand. A single shared app id would work for nobody
+but me, and every user would share one rate-limit bucket. So each install brings its
+own app - the walkthrough copies the redirect URI to your clipboard, checks the id you
+paste, and connects at the end.
 
-**Spotify Premium is required** - the Web API playback endpoints are Premium-only.
+After that it is just **M**. Sign-in is remembered; you never repeat the setup.
+
+You can redo it at any time from **Settings → Account → Reset setup**.
 
 ## Before you "clean up" any of this
 

@@ -53,8 +53,10 @@ public class SetupScreen extends Screen {
         int y = contentTop() + 96;
 
         boolean ready = SpotifyConfig.hasClientId();
+        boolean supported = SpotifyConfig.SUPPORTED;
         connectButton = Button.builder(
-                        Component.literal(ready ? "Connect Spotify" : "Start setup"),
+                        Component.literal(!supported ? "Not available"
+                                : ready ? "Connect Spotify" : "Start setup"),
                         b -> {
                             if (SpotifyConfig.hasClientId()) service.connect();
                             else if (minecraft != null) {
@@ -63,10 +65,11 @@ public class SetupScreen extends Screen {
                         })
                 .bounds(cx - 90, y, 180, 20)
                 .build();
+        connectButton.active = supported;
         addRenderableWidget(connectButton);
         y += 28;
 
-        if (ready) {
+        if (ready && supported) {
             // Still reachable afterwards, for a typo or a second Spotify account.
             addRenderableWidget(Button.builder(Component.literal("Change Client ID"),
                             b -> { if (minecraft != null) minecraft.setScreen(new SetupWizardScreen(this)); })
@@ -134,10 +137,19 @@ public class SetupScreen extends Screen {
         super.render(g, mouseX, mouseY, partial);
         int cx = width / 2;
 
-        g.drawCenteredString(font, SpotifyConfig.hasClientId()
-                        ? "Spotify Premium is required."
-                        : "Needs Spotify Premium and a free Spotify app.",
-                cx, contentTop() + 78, Theme.TEXT_FAINT);
+        if (!SpotifyConfig.SUPPORTED) {
+            g.drawCenteredString(font, "SpotConnect only works on Windows.",
+                    cx, contentTop() + 70, Theme.TEXT_ERROR);
+            g.drawCenteredString(font, "It drives a dedicated Chrome window using Windows-only",
+                    cx, contentTop() + 84, Theme.TEXT_FAINT);
+            g.drawCenteredString(font, "APIs. Nothing has been changed on your system.",
+                    cx, contentTop() + 94, Theme.TEXT_FAINT);
+        } else {
+            g.drawCenteredString(font, SpotifyConfig.hasClientId()
+                            ? "Spotify Premium is required."
+                            : "Needs Spotify Premium and a free Spotify app.",
+                    cx, contentTop() + 78, Theme.TEXT_FAINT);
+        }
 
         String status = service.status();
         if (status != null && !status.isEmpty()) {

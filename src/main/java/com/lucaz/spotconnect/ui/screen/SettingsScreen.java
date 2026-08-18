@@ -122,6 +122,8 @@ public class SettingsScreen extends SpotifyScreen {
                 new Option.IntSlider(Defaults.PB_VOLUME_STEP, "Volume step", null, 1, 25, 1, "%"),
                 new Option.Toggle(Defaults.PB_PAUSE_ON_MENU, "Pause at the title screen",
                         "Stops the music when you leave a world"),
+                new Option.Toggle(Defaults.PB_PLAY_UNFOCUSED, "Keep playing when tabbed out",
+                        "Off pauses while another window is in front, and resumes on return"),
                 new Option.Toggle(Defaults.PB_CONFIRM_DJ, "Confirm before starting DJ",
                         "Asks first, so DJ never interrupts by accident"))));
 
@@ -172,6 +174,13 @@ public class SettingsScreen extends SpotifyScreen {
                     return id.substring(0, 6) + "..." + id.substring(id.length() - 4);
                 }),
                 new Option.Info("Connection", () -> service.stateLabel()),
+                new Option.Action("Send feedback",
+                        "Tell the author what broke, or what you want next",
+                        "Open", () -> {
+                            if (minecraft != null) {
+                                minecraft.setScreen(new FeedbackScreen(this));
+                            }
+                        }),
                 new Option.Action("Reset setup",
                         "Forgets your Client ID and Spotify login, then starts the walkthrough again",
                         "Reset", () -> {

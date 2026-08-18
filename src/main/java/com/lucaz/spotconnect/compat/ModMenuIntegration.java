@@ -7,14 +7,12 @@ import com.terraformersmc.modmenu.api.ConfigScreenFactory;
 import com.terraformersmc.modmenu.api.ModMenuApi;
 
 /**
- * Puts a config button next to SpotConnect in Mod Menu's list.
+ * Config button next to SpotConnect in Mod Menu's list.
  *
- * Optional at runtime. Mod Menu is a compile-only dependency and this class is only
- * ever loaded by Mod Menu's own entrypoint, so an install without it never touches
- * these classes and never sees a missing-class error.
+ * Mod Menu is compile-only and this class is loaded solely by its entrypoint, so an
+ * install without it never touches these classes.
  *
- * Which screen opens depends on how far setup has got: someone who has not finished
- * the walkthrough wants the walkthrough, not a settings list they cannot use yet.
+ * Opens the walkthrough if setup is unfinished, Settings otherwise.
  */
 public class ModMenuIntegration implements ModMenuApi {
 

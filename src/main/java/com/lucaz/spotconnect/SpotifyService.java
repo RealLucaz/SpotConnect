@@ -28,6 +28,11 @@ import java.util.function.Supplier;
 import com.lucaz.spotconnect.config.ModConfig;
 import com.lucaz.spotconnect.spotify.SpotifyModels;
 import com.lucaz.spotconnect.ui.SpotifyScreen;
+import java.util.ArrayDeque;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.RejectedExecutionException;
 
 /**
  * The one object the UI talks to.
@@ -179,8 +184,8 @@ public final class SpotifyService implements SpotifyDeviceManager.Host, SpotifyA
 
     // ---- sidebar playlists (shared by every screen) ------------------------
 
-    private volatile java.util.List<SpotifyModels.Playlist>
-            sidebarPlaylists = java.util.List.of();
+    private volatile List<SpotifyModels.Playlist>
+            sidebarPlaylists = List.of();
     private volatile boolean sidebarLoading;
     /**
      * Whether the fetch has been ATTEMPTED - not the same as it returning something.
@@ -192,7 +197,7 @@ public final class SpotifyService implements SpotifyDeviceManager.Host, SpotifyA
     private volatile boolean sidebarRequested;
 
     /** The user's playlists, loaded once and shared by the navigation rail. */
-    public java.util.List<SpotifyModels.Playlist> sidebarPlaylists() {
+    public List<SpotifyModels.Playlist> sidebarPlaylists() {
         if (!sidebarRequested && !sidebarLoading && isConnected()) {
             sidebarRequested = true;
             sidebarLoading = true;
@@ -207,7 +212,7 @@ public final class SpotifyService implements SpotifyDeviceManager.Host, SpotifyA
     /** Lets an explicit refresh, or a newly created playlist, re-fetch the rail. */
     public void invalidateSidebarPlaylists() {
         sidebarRequested = false;
-        sidebarPlaylists = java.util.List.of();
+        sidebarPlaylists = List.of();
     }
 
     public int pageSize() { return ModConfig.get().integer(ModConfig.Defaults.NET_PAGE_SIZE); }
@@ -397,7 +402,7 @@ public final class SpotifyService implements SpotifyDeviceManager.Host, SpotifyA
             poller.schedule(() -> {
                 try { pollPlayback(); } finally { scheduleNextPoll(nextPollDelayMs()); }
             }, delayMs, TimeUnit.MILLISECONDS);
-        } catch (java.util.concurrent.RejectedExecutionException ignored) {
+        } catch (RejectedExecutionException ignored) {
             // Shutting down.
         }
     }
@@ -458,7 +463,7 @@ public final class SpotifyService implements SpotifyDeviceManager.Host, SpotifyA
     }
 
     /** Plays an explicit track list (Liked Songs, which has no context URI). */
-    public void playTracks(java.util.List<Track> tracks, int startIndex, String label) {
+    public void playTracks(List<Track> tracks, int startIndex, String label) {
         optPlaying = true;
         optPlayingUntil = System.currentTimeMillis() + OPTIMISTIC_MS;
         setStatus("Playing " + label);
@@ -466,7 +471,7 @@ public final class SpotifyService implements SpotifyDeviceManager.Host, SpotifyA
     }
 
     /** Shuffles an explicit track list. */
-    public void shufflePlayTracks(java.util.List<Track> tracks, String label) {
+    public void shufflePlayTracks(List<Track> tracks, String label) {
         optShuffle = true;
         optShuffleUntil = System.currentTimeMillis() + OPTIMISTIC_MS;
         optPlaying = true;
@@ -537,7 +542,7 @@ public final class SpotifyService implements SpotifyDeviceManager.Host, SpotifyA
     }
 
     private volatile long lastSkipAt;
-    private final java.util.ArrayDeque<Long> recentSkips = new java.util.ArrayDeque<>();
+    private final ArrayDeque<Long> recentSkips = new ArrayDeque<>();
 
     /** Milliseconds until the next skip is allowed; 0 when ready. */
     public synchronized long skipCooldownMs() {
@@ -691,7 +696,7 @@ public final class SpotifyService implements SpotifyDeviceManager.Host, SpotifyA
     // showing genuinely stale data for long.
     private record CacheEntry(Object value, long at) { }
 
-    private final java.util.Map<String, CacheEntry> cache = new java.util.concurrent.ConcurrentHashMap<>();
+    private final Map<String, CacheEntry> cache = new ConcurrentHashMap<>();
 
     /** Library lists change rarely; a minute of reuse covers normal navigation. */
     public static final long TTL_LIST = 60_000;
@@ -722,7 +727,7 @@ public final class SpotifyService implements SpotifyDeviceManager.Host, SpotifyA
     public void resetSetup() {
         try { shutdown(); } catch (Exception ignored) { }
         tokens.clear();
-        try { java.nio.file.Files.deleteIfExists(SpotifyConfig.DEVICE_FILE); }
+        try { Files.deleteIfExists(SpotifyConfig.DEVICE_FILE); }
         catch (Exception ignored) { }
         ModConfig cfg = ModConfig.get();
         cfg.set(ModConfig.Defaults.AUTH_CLIENT_ID, "");

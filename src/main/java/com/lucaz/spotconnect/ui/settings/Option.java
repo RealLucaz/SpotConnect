@@ -7,6 +7,7 @@ import com.lucaz.spotconnect.ui.widget.Icons;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import com.lucaz.spotconnect.ui.Anim;
+import java.util.function.Supplier;
 
 /**
  * One row in the settings list.
@@ -148,7 +149,7 @@ public abstract class Option {
             if (mx < cx) return false;
             if (mx <= cx + 9) { cfg().bump(key, -step, min, max); return true; }
             if (mx >= cx + controlW - 9) { cfg().bump(key, step, min, max); return true; }
-            var mc = net.minecraft.client.Minecraft.getInstance();
+            var mc = Minecraft.getInstance();
             int valueW = mc.font.width(display()) + 4;
             int barW = controlW - 22 - valueW;
             int bx = cx + 11 + valueW;
@@ -204,7 +205,7 @@ public abstract class Option {
             if (mx < cx) return false;
             if (mx <= cx + 9) { cfg().bump(key, -step, min, max); return true; }
             if (mx >= cx + controlW - 9) { cfg().bump(key, step, min, max); return true; }
-            var mc = net.minecraft.client.Minecraft.getInstance();
+            var mc = Minecraft.getInstance();
             int valueW = mc.font.width(Math.round(cfg().number(key) * 100) + "%") + 4;
             int barW = controlW - 22 - valueW;
             double frac = Math.max(0, Math.min(1, (mx - (cx + 11 + valueW)) / (double) barW));
@@ -247,9 +248,9 @@ public abstract class Option {
 
     /** A non-interactive line of information. */
     public static final class Info extends Option {
-        private final java.util.function.Supplier<String> value;
+        private final Supplier<String> value;
 
-        public Info(String label, java.util.function.Supplier<String> value) {
+        public Info(String label, Supplier<String> value) {
             super(null, label, null);
             this.value = value;
         }

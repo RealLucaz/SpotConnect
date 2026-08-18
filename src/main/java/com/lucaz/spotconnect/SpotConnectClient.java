@@ -55,7 +55,8 @@ public final class SpotConnectClient implements ClientModInitializer {
         // that has never connected: restoreIfPossible() returns immediately without a
         // token file, and the service is not even constructed in that case.
         ClientLifecycleEvents.CLIENT_STARTED.register(client -> {
-            if (ModConfig.get()
+            if (SpotifyConfig.SUPPORTED
+                    && ModConfig.get()
                         .bool(ModConfig.Defaults.START_AUTOCONNECT)
                     && SpotifyConfig.hasClientId()
                     && SpotifyService.hasStoredAuthorizationOnDisk()) {
@@ -75,6 +76,7 @@ public final class SpotConnectClient implements ClientModInitializer {
 
     private void onTick(Minecraft client) {
         pauseOnTitleScreen(client);
+        pauseWhileTabbedOut(client);
         while (OPEN_SPOTIFY.consumeClick()) {
             openUi(client);
         }
@@ -121,11 +123,65 @@ public final class SpotConnectClient implements ClientModInitializer {
         service.pause();
     }
 
+    /** How long the window must stay unfocused before we act. */
+    private static final long FOCUS_GRACE_MS = 1_500;
+
+    private boolean wasFocused = true;
+    private long unfocusedSince;
+    /** Only resume what we paused - never override a deliberate pause. */
+    private boolean pausedByFocusLoss;
+
+    /**
+     * Pauses while another window is in front, if the user turned that on.
+     *
+     * Audio runs in a separate Chrome process, so alt-tabbing leaves it playing by
+     * default. Opt-out for people who would rather it stopped.
+     *
+     * Waits {@value #FOCUS_GRACE_MS}ms first, so a quick flick to another window costs
+     * nothing. Only resumes a pause it issued itself.
+     */
+    private void pauseWhileTabbedOut(Minecraft client) {
+        if (ModConfig.get().bool(ModConfig.Defaults.PB_PLAY_UNFOCUSED)) {
+            // Feature off: keep the state clean so enabling it later starts fresh.
+            wasFocused = true;
+            pausedByFocusLoss = false;
+            return;
+        }
+        if (!SpotifyService.isCreated()) return;
+        SpotifyService service = SpotifyService.get();
+        if (!service.isConnected()) return;
+
+        boolean focused = client.isWindowActive();
+        if (focused != wasFocused) {
+            wasFocused = focused;
+            unfocusedSince = focused ? 0 : System.currentTimeMillis();
+        }
+
+        if (!focused) {
+            if (unfocusedSince == 0 || pausedByFocusLoss) return;
+            if (System.currentTimeMillis() - unfocusedSince < FOCUS_GRACE_MS) return;
+            if (!service.isPlayingOptimistic()) return;
+            LOGGER.info("[SPOTIFY] Window lost focus - pausing playback.");
+            service.pause();
+            pausedByFocusLoss = true;
+        } else if (pausedByFocusLoss) {
+            pausedByFocusLoss = false;
+            if (service.isPlayingOptimistic()) return;
+            LOGGER.info("[SPOTIFY] Window focused - resuming playback.");
+            service.resume();
+        }
+    }
+
     private void openUi(Minecraft client) {
         Screen current = client.screen;
         if (current instanceof SpotifyScreen
                 || current instanceof SetupScreen) {
             return;   // already open
+        }
+        // Nothing works off-Windows, so send them to the screen that says why.
+        if (!SpotifyConfig.SUPPORTED) {
+            client.setScreen(new SetupScreen());
+            return;
         }
         // No client id means nothing can work yet, whatever else is on disk. A stored
         // token from a previous app is useless without the app it was issued for, so this

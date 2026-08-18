@@ -7,6 +7,12 @@
   "authors": [
     "lucaz"
   ],
+  "icon": "assets/spotconnect/icon.png",
+  "license": "MIT",
+  "contact": {
+    "sources": "https://github.com/RealLucaz/spotconnect",
+    "issues": "https://github.com/RealLucaz/spotconnect/issues"
+  },
   "environment": "client",
   "entrypoints": {
     "client": [

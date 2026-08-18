@@ -10,6 +10,7 @@ import com.lucaz.spotconnect.config.ModConfig;
 import com.lucaz.spotconnect.ui.Anim;
 import com.lucaz.spotconnect.ui.UiText;
 import com.lucaz.spotconnect.ui.widget.Icons;
+import net.minecraft.client.Minecraft;
 
 /**
  * A scrollable list of uniform rows.
@@ -82,7 +83,7 @@ public class ListPanel<T> extends ScrollPanel {
     protected void renderContent(GuiGraphics g, int mouseX, int mouseY, int topY, float partial) {
         if (items.isEmpty()) {
             if (emptyText == null || emptyText.isBlank()) return;
-            net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
+            Minecraft mc = Minecraft.getInstance();
             // Centred with a muted note glyph rather than text stranded in the corner.
             int cx = x + width / 2;
             int cy = y + Math.min(height / 2, 60);

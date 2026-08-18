@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
+import java.net.BindException;
 
 /**
  * OAuth 2.0 Authorization Code + PKCE against a loopback redirect.
@@ -75,7 +76,7 @@ public final class SpotifyOAuth {
         HttpServer server;
         try {
             server = HttpServer.create(new InetSocketAddress("127.0.0.1", SpotifyConfig.OAUTH_PORT), 0);
-        } catch (java.net.BindException be) {
+        } catch (BindException be) {
             LOGGER.error("[OAuth] Cannot bind 127.0.0.1:{} - {}", SpotifyConfig.OAUTH_PORT, be.getMessage());
             return AuthResult.fail("Port " + SpotifyConfig.OAUTH_PORT
                     + " is already in use. Close any other copy of the Spotify helper.");

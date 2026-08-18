@@ -1,6 +1,7 @@
 package com.lucaz.spotconnect.ui;
 
 import com.lucaz.spotconnect.config.ModConfig;
+import net.minecraft.client.gui.GuiGraphics;
 
 /**
  * One place for every colour and measurement, so screens stay visually consistent.
@@ -149,7 +150,7 @@ public final class Theme {
     }
 
     /** Header wash: accent at the top fading into the page background. */
-    public static void headerWash(net.minecraft.client.gui.GuiGraphics g,
+    public static void headerWash(GuiGraphics g,
                                   int x, int y, int w, int h, int accent) {
         if (!ModConfig.get().bool(ModConfig.Defaults.UI_HEADER_WASH)) return;
         g.fillGradient(x, y, x + w, y + h, alpha(accent, 0.55f), alpha(accent, 0f));
@@ -161,7 +162,7 @@ public final class Theme {
      * At this scale a single missing corner pixel is all it takes to read as rounded,
      * and it costs four extra fills rather than a shader or a nine-slice texture.
      */
-    public static void roundedFill(net.minecraft.client.gui.GuiGraphics g,
+    public static void roundedFill(GuiGraphics g,
                                    int x, int y, int x2, int y2, int colour) {
         g.fill(x + 1, y, x2 - 1, y2, colour);
         g.fill(x, y + 1, x + 1, y2 - 1, colour);
@@ -172,14 +173,14 @@ public final class Theme {
      * A rounded fill with a lit top edge - the cheapest way to make a flat rectangle read
      * as a raised surface rather than a painted block.
      */
-    public static void surface(net.minecraft.client.gui.GuiGraphics g,
+    public static void surface(GuiGraphics g,
                                int x, int y, int x2, int y2, int colour) {
         roundedFill(g, x, y, x2, y2, colour);
         g.fill(x + 1, y, x2 - 1, y + 1, EDGE_LIGHT);
     }
 
     /** A hairline outline, used for hover and focus states. */
-    public static void outline(net.minecraft.client.gui.GuiGraphics g,
+    public static void outline(GuiGraphics g,
                                int x, int y, int x2, int y2, int colour) {
         g.fill(x + 1, y, x2 - 1, y + 1, colour);
         g.fill(x + 1, y2 - 1, x2 - 1, y2, colour);

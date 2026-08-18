@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 import com.lucaz.spotconnect.config.ModConfig;
+import net.minecraft.client.gui.Font;
 
 /**
  * Shared chrome for every Spotify screen: nav rail, content area, playback bar.
@@ -599,13 +600,13 @@ public abstract class SpotifyScreen extends Screen {
             g.disableScissor();
         }
 
-        private void drawSectionLabel(GuiGraphics g, net.minecraft.client.gui.Font font,
+        private void drawSectionLabel(GuiGraphics g, Font font,
                                       String text, int y) {
             g.fill(7, y - 6, Theme.sidebarWidth() - 7, y - 5, Theme.alpha(Theme.DIVIDER, 0.7f));
             g.drawString(font, text, 7, y, Theme.TEXT_FAINT, false);
         }
 
-        private void drawItem(GuiGraphics g, net.minecraft.client.gui.Font font, Item item,
+        private void drawItem(GuiGraphics g, Font font, Item item,
                               int y, int mouseX, int mouseY, SpotifyScreen screen) {
             boolean active = item.type().isInstance(screen);
             int top = y - 3;

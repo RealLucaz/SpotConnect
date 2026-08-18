@@ -5,6 +5,7 @@ import com.lucaz.spotconnect.config.ModConfig;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.util.Locale;
 
 /**
  * Tunable constants.
@@ -64,6 +65,15 @@ public final class SpotifyConfig {
     public static final String SPOTIFY_URL = "https://open.spotify.com";
 
     /**
+     * Where the in-game feedback button goes.
+     *
+     * Deliberately not a server of our own. Feedback opens a pre-filled issue in the
+     * browser, so nothing is transmitted from the game, there is no endpoint to secure
+     * and no data to look after. The user sees the report and presses submit themselves.
+     */
+    public static final String ISSUES_URL = "https://github.com/RealLucaz/spotconnect/issues/new";
+
+    /**
      * DJ X as a playback context. There's no documented endpoint for it.
      *
      * GET on this id returns 404, but it still works as a context for
@@ -82,7 +92,29 @@ public final class SpotifyConfig {
             + URLEncoder.encode(SPOTIFY_URL + "/", StandardCharsets.UTF_8);
 
     // ---- on-disk state ----------------------------------------------------
-    public static final Path APP_DIR     = Path.of(System.getenv("LOCALAPPDATA"), "MinecraftSpotify");
+    /**
+     * True only on Windows. The browser layer is PowerShell, Win32 and CIM throughout,
+     * so there is nothing to fall back to elsewhere.
+     */
+    public static final boolean SUPPORTED = System.getProperty("os.name", "")
+            .toLowerCase(Locale.ROOT).contains("win");
+
+    /**
+     * Base directory, or a harmless placeholder off-Windows.
+     *
+     * LOCALAPPDATA does not exist on macOS or Linux, so getenv returned null and
+     * Path.of(null, ...) threw inside this static initialiser - an
+     * ExceptionInInitializerError during startup, which took the whole game down rather
+     * than just disabling the mod. Nothing here is ever used when SUPPORTED is false.
+     */
+    public static final Path APP_DIR = appDir();
+
+    private static Path appDir() {
+        String local = System.getenv("LOCALAPPDATA");
+        if (local != null && !local.isBlank()) return Path.of(local, "MinecraftSpotify");
+        // Somewhere writable that we will never actually touch off-Windows.
+        return Path.of(System.getProperty("user.home", "."), ".spotconnect");
+    }
     public static final Path PROFILE_DIR = APP_DIR.resolve("chrome-profile");
     public static final Path TOKEN_FILE  = APP_DIR.resolve("auth.json");
     /** Which Connect device is ours, so we don't grab the user's phone or desktop app. */

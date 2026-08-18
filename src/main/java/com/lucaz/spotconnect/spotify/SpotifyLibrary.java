@@ -13,6 +13,7 @@ import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 /**
  * The read-only browse calls: search, home, library, playlists, albums, artists, liked
@@ -261,14 +262,14 @@ public final class SpotifyLibrary {
 
     /** Pulls {@code root[key].items[]} and maps each entry. */
     private static <T> List<T> mapItems(Map<?, ?> root, String key,
-                                        java.util.function.Function<Map<?, ?>, T> f) {
+                                        Function<Map<?, ?>, T> f) {
         if (root == null || !(root.get(key) instanceof Map<?, ?> section)) return List.of();
         return mapList(section, f);
     }
 
     /** Pulls {@code node.items[]} and maps each entry, skipping nulls. */
     private static <T> List<T> mapList(Map<?, ?> node,
-                                       java.util.function.Function<Map<?, ?>, T> f) {
+                                       Function<Map<?, ?>, T> f) {
         if (node == null || !(node.get("items") instanceof List<?> items)) return List.of();
         List<T> out = new ArrayList<>();
         for (Object o : items) {
@@ -281,7 +282,7 @@ public final class SpotifyLibrary {
 
     /** Pulls {@code node.items[].<inner>} and maps each entry. */
     private static <T> List<T> mapWrappedList(Map<?, ?> node, String inner,
-                                              java.util.function.Function<Map<?, ?>, T> f) {
+                                              Function<Map<?, ?>, T> f) {
         if (node == null || !(node.get("items") instanceof List<?> items)) return List.of();
         List<T> out = new ArrayList<>();
         for (Object o : items) {

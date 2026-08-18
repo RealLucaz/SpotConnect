@@ -8,6 +8,7 @@ import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
+import net.minecraft.client.Minecraft;
 
 /**
  * A button that belongs to this interface rather than to vanilla.
@@ -90,7 +91,7 @@ public class PillButton extends AbstractButton {
             g.fill(x, y, x + 1, y + h, Theme.alpha(Theme.GREEN, 0.5f + 0.45f * hv));
         }
 
-        var font = net.minecraft.client.Minecraft.getInstance().font;
+        var font = Minecraft.getInstance().font;
         String label = getMessage().getString();
         int iconW = icon == null ? 0 : 10;
         int textW = font.width(label);

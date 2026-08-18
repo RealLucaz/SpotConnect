@@ -67,6 +67,7 @@ public final class ModConfig {
         public static final String PB_VOLUME_STEP    = "playback.volumeStep";
         public static final String PB_CONFIRM_DJ     = "playback.confirmDj";
         public static final String PB_PAUSE_ON_MENU  = "playback.pauseOnTitleScreen";
+        public static final String PB_PLAY_UNFOCUSED = "playback.playWhileUnfocused";
 
         // ---- artwork --------------------------------------------------------
         public static final String ART_ENABLED       = "artwork.enabled";
@@ -86,6 +87,7 @@ public final class ModConfig {
         // ---- account -----------------------------------------------------
         /** The user's own Spotify app id. Empty until they finish the setup walkthrough. */
         public static final String AUTH_CLIENT_ID    = "auth.clientId";
+
 
         public static final String START_AUTOCONNECT = "startup.autoConnect";
         public static final String START_OPEN_HOME   = "startup.openHome";
@@ -124,6 +126,7 @@ public final class ModConfig {
         put(Defaults.UI_ANIMATIONS, true);
 
         put(Defaults.PB_PAUSE_ON_MENU, true);
+        put(Defaults.PB_PLAY_UNFOCUSED, true);
         put(Defaults.PB_STARTUP_VOLUME, -1);
         put(Defaults.PB_TRANSFER, true);
         put(Defaults.PB_OPTIMISTIC, true);
