@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "id": "spotconnect",
+  "version": "${version}",
+  "name": "SpotConnect Premium",
+  "description": "Play your Spotify Premium library from inside Minecraft. Requires a Spotify Premium account. Playback runs in a dedicated hidden Chrome profile signed in to the official Spotify Web Player, driven through the official Spotify Web API.",
+  "authors": [
+    "lucaz"
+  ],
+  "icon": "assets/spotconnect/icon.png",
+  "license": "MIT",
+  "contact": {
+    "sources": "https://github.com/RealLucaz/spotconnect",
+    "issues": "https://github.com/RealLucaz/spotconnect/issues"
+  },
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "com.lucaz.spotconnect.SpotConnectClient"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "minecraft": "${minecraft_dependency}",
+    "java": ">=${java_version}",
+    "fabric-api": "*"
+  }
+}

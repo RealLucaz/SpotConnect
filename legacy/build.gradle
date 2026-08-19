@@ -1,0 +1,50 @@
+plugins {
+    id 'fabric-loom' version '1.16-SNAPSHOT'
+    id 'java'
+}
+
+version = project.mod_version
+group = project.maven_group
+
+base {
+    archivesName = "${project.archives_base_name}-${stonecutter.current.version}"
+}
+
+repositories {
+    mavenCentral()
+    maven { name = 'Fabric';       url = 'https://maven.fabricmc.net/' }
+    maven { name = 'Terraformers'; url = 'https://maven.terraformersmc.com/' }
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:${stonecutter.current.version}"
+    mappings loom.officialMojangMappings()
+    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+}
+
+processResources {
+    inputs.property "version", project.version
+    inputs.property "minecraft_dependency", project.minecraft_dependency
+    inputs.property "loader_version", project.loader_version
+    inputs.property "java_version", project.java_version
+    filesMatching("fabric.mod.json") {
+        expand(
+            "version": project.version,
+            "minecraft_dependency": project.minecraft_dependency,
+            "loader_version": project.loader_version,
+            "java_version": project.java_version
+        )
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    it.options.release = project.java_version.toInteger()
+    it.options.compilerArgs << '-Xlint:all,-processing'
+}
+
+java {
+    def jv = JavaVersion.toVersion(project.java_version)
+    sourceCompatibility = jv
+    targetCompatibility = jv
+}

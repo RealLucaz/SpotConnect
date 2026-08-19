@@ -17,3 +17,7 @@ out/
 versions/*/build/
 versions/*/.gradle/
 dist/
+legacy/versions/*/build/
+legacy/versions/*/.gradle/
+legacy/.gradle/
+legacy/build/
