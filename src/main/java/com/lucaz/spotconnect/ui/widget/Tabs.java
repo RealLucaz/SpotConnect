@@ -3,7 +3,7 @@ package com.lucaz.spotconnect.ui.widget;
 import com.lucaz.spotconnect.ui.Anim;
 import com.lucaz.spotconnect.ui.Theme;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 
 /**
  * Tab strip with an underline that slides between tabs.
@@ -28,7 +28,7 @@ public final class Tabs {
      * @param key    unique per screen, so two tab strips never share animation state
      * @param active index of the selected tab
      */
-    public static void render(GuiGraphics g, String key, String[] labels, int active,
+    public static void render(GuiGraphicsExtractor g, String key, String[] labels, int active,
                               int x, int y, int w, int mouseX, int mouseY) {
         Minecraft mc = Minecraft.getInstance();
 
@@ -46,7 +46,7 @@ public final class Tabs {
                     : Anim.mix(Theme.TEXT_FAINT, Theme.TEXT, hv);
             // Hovered tabs lift a pixel. Subtle, but you notice when it's missing.
             int lift = Math.round(Anim.ease(hv));
-            g.drawString(mc.font, labels[i], tx + 6, y - lift, colour, false);
+            g.text(mc.font, labels[i], tx + 6, y - lift, colour, false);
 
             if (isActive) { activeX = tx; activeW = tw; }
             tx += tw;

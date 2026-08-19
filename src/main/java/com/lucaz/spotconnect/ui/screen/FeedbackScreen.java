@@ -6,16 +6,17 @@ import com.lucaz.spotconnect.ui.SpotifyScreen;
 import com.lucaz.spotconnect.ui.Theme;
 import com.lucaz.spotconnect.ui.UiText;
 import com.lucaz.spotconnect.ui.widget.PillButton;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.MultiLineEditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 
 import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.client.input.MouseButtonEvent;
 
 /**
  * Report a bug or ask for a feature.
@@ -64,9 +65,11 @@ public class FeedbackScreen extends SpotifyScreen {
 
         boxH = Math.max(48, Math.min(boxH, contentH() - 100));
 
-        box = new MultiLineEditBox(font, x, y, w, boxH,
-                Component.literal("What went wrong, or what would you like to see?"),
-                Component.literal("Feedback"));
+        box = MultiLineEditBox.builder()
+                .setX(x)
+                .setY(y)
+                .setPlaceholder(Component.literal("What went wrong, or what would you like to see?"))
+                .build(font, w, boxH, Component.literal("Feedback"));
         box.setValue(draft);
         box.setValueListener(v -> draft = v);
         addRenderableWidget(box);
@@ -127,23 +130,23 @@ public class FeedbackScreen extends SpotifyScreen {
     // ------------------------------------------------------------------ render
 
     @Override
-    protected void renderContent(GuiGraphics g, int mouseX, int mouseY, float partial) {
+    protected void renderContent(GuiGraphicsExtractor g, int mouseX, int mouseY, float partial) {
         int x = contentX();
         int w = contentW();
         refreshSubmit();
 
         // Say up front where this goes. Nothing is sent from the game itself.
-        g.drawString(font, failed
+        g.text(font, failed
                         ? "Could not open a browser. Report it at: " + SpotifyConfig.ISSUES_URL
                         : "Opens GitHub in your browser with this text, the mod version and",
                 x, contentY() + 12, failed ? Theme.TEXT_ERROR : Theme.TEXT_FAINT, false);
         if (!failed) {
-            g.drawString(font, "your OS filled in. You press submit there. Nothing is sent from the game.",
+            g.text(font, "your OS filled in. You press submit there. Nothing is sent from the game.",
                     x, contentY() + 24, Theme.TEXT_FAINT, false);
         }
 
         String count = draft.length() + " / " + MAX_CHARS;
-        g.drawString(font, count, x + w - UiText.width(count), contentY() + 24,
+        g.text(font, count, x + w - UiText.width(count), contentY() + 24,
                 draft.length() > MAX_CHARS ? Theme.TEXT_ERROR : Theme.TEXT_FAINT, false);
 
         int boxBottom = contentY() + 36 + boxH;
@@ -160,13 +163,13 @@ public class FeedbackScreen extends SpotifyScreen {
                     Anim.mix(Theme.TEXT_FAINT, Theme.TEXT, gh));
         }
         if (gh > 0.05f) {
-            g.drawString(font, "drag to resize", gx + gripW + 12, boxBottom + 1,
+            g.text(font, "drag to resize", gx + gripW + 12, boxBottom + 1,
                     Theme.alpha(Theme.TEXT_FAINT, gh), false);
         }
 
         long left = cooldownLeft();
         if (left > 0) {
-            g.drawString(font, "Please wait " + (left / 1000 + 1) + "s before sending again.",
+            g.text(font, "Please wait " + (left / 1000 + 1) + "s before sending again.",
                     x + 158, contentY() + 42 + boxH, Theme.TEXT_FAINT, false);
         }
 
@@ -174,7 +177,7 @@ public class FeedbackScreen extends SpotifyScreen {
     }
 
     /** The confirmation: a card that springs in, holds, then fades out. */
-    private void renderThanks(GuiGraphics g) {
+    private void renderThanks(GuiGraphicsExtractor g) {
         if (sentAt == 0) return;
         long age = System.currentTimeMillis() - sentAt;
         if (age > 2600) {
@@ -208,25 +211,29 @@ public class FeedbackScreen extends SpotifyScreen {
         for (int i = 0; i < 3; i++) g.fill(tx + i, ty + i, tx + i + 1, ty + i + 2, tick);
         for (int i = 0; i < 5; i++) g.fill(tx + 3 + i, ty + 2 - i, tx + 4 + i, ty + 3 - i, tick);
 
-        g.drawString(font, line, cx - UiText.width(line) / 2 + 10, cy - 4 + lift,
+        g.text(font, line, cx - UiText.width(line) / 2 + 10, cy - 4 + lift,
                 Theme.alpha(Theme.TEXT, a), false);
     }
 
     // ------------------------------------------------------------------ input
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubled) {
+        double mouseX = event.x(), mouseY = event.y();
+        int button = event.button();
         int boxBottom = contentY() + 36 + boxH;
         if (button == 0 && mouseY >= boxBottom && mouseY <= boxBottom + 7
                 && mouseX >= contentX() && mouseX <= contentX() + contentW()) {
             dragging = true;
             return true;
         }
-        return super.mouseClicked(mouseX, mouseY, button);
+        return super.mouseClicked(event, doubled);
     }
 
     @Override
-    public boolean mouseDragged(double mouseX, double mouseY, int button, double dx, double dy) {
+    public boolean mouseDragged(MouseButtonEvent event, double dx, double dy) {
+        double mouseX = event.x(), mouseY = event.y();
+        int button = event.button();
         if (dragging) {
             int wanted = (int) (mouseY - (contentY() + 36));
             int clamped = Math.max(48, Math.min(wanted, contentH() - 100));
@@ -237,13 +244,15 @@ public class FeedbackScreen extends SpotifyScreen {
             }
             return true;
         }
-        return super.mouseDragged(mouseX, mouseY, button, dx, dy);
+        return super.mouseDragged(event, dx, dy);
     }
 
     @Override
-    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+    public boolean mouseReleased(MouseButtonEvent event) {
+        double mouseX = event.x(), mouseY = event.y();
+        int button = event.button();
         dragging = false;
-        return super.mouseReleased(mouseX, mouseY, button);
+        return super.mouseReleased(event);
     }
 
     @Override

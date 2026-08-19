@@ -1,6 +1,6 @@
 package com.lucaz.spotconnect.ui.widget;
 
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 
 /**
  * The DJ X orb - green ring, teal/blue crescent peeking out behind the upper right.
@@ -24,7 +24,7 @@ public final class DjOrb {
      * @param radius outer radius of the green ring
      * @param pulse  0..1 breathing amount, used when DJ is live
      */
-    public static void draw(GuiGraphics g, int cx, int cy, int radius, float pulse,
+    public static void draw(GuiGraphicsExtractor g, int cx, int cy, int radius, float pulse,
                             boolean hovered) {
         int ringOuter = radius;
         // The ring is about a sixth of the radius thick, like the real mark.
@@ -42,7 +42,7 @@ public final class DjOrb {
     }
 
     /** Filled annulus between {@code inner} and {@code outer}, scanline by scanline. */
-    private static void ring(GuiGraphics g, int cx, int cy, int outer, int inner, int color) {
+    private static void ring(GuiGraphicsExtractor g, int cx, int cy, int outer, int inner, int color) {
         if (outer <= 0) return;
         int innerSq = inner * inner;
         int outerSq = outer * outer;

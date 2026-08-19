@@ -2,7 +2,7 @@ package com.lucaz.spotconnect.ui.widget;
 
 import com.lucaz.spotconnect.ui.Anim;
 import com.lucaz.spotconnect.ui.Theme;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 
 /**
  * Spectrum-style bars. Fake - there's no audio to analyse here.
@@ -28,7 +28,7 @@ public final class Visualizer {
      * @param active  false settles the bars to a resting line
      * @param accent  colour, usually taken from the album art
      */
-    public static void bars(GuiGraphics g, int x, int y, int w, int h,
+    public static void bars(GuiGraphicsExtractor g, int x, int y, int w, int h,
                             int bars, long seed, boolean active, int accent) {
         if (w <= 0 || h <= 0 || bars <= 0) return;
 
@@ -70,7 +70,7 @@ public final class Visualizer {
      *
      * Cheaper than {@link #bars} and reads well at a few pixels tall.
      */
-    public static void wave(GuiGraphics g, int x, int y, int w, int h,
+    public static void wave(GuiGraphicsExtractor g, int x, int y, int w, int h,
                             long seed, boolean active, int accent) {
         if (w <= 0 || h <= 0) return;
         double t = System.currentTimeMillis() / 1000.0;

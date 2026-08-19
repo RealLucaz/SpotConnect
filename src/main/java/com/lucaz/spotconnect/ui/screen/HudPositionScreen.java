@@ -5,11 +5,12 @@ import com.lucaz.spotconnect.config.ModConfig;
 import com.lucaz.spotconnect.spotify.SpotifyModels.PlaybackState;
 import com.lucaz.spotconnect.ui.MiniPlayerHud;
 import com.lucaz.spotconnect.ui.Theme;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
+import net.minecraft.client.input.MouseButtonEvent;
 
 /**
  * Positioning mode for the now-playing card. Dragging works here and nowhere else.
@@ -75,7 +76,7 @@ public class HudPositionScreen extends Screen {
      * leaves the scene sharp behind a light scrim.
      */
     @Override
-    public void renderBackground(@NotNull GuiGraphics g, int mouseX, int mouseY, float partial) {
+    public void extractBackground(@NotNull GuiGraphicsExtractor g, int mouseX, int mouseY, float partial) {
         // Vignette rather than a flat wash: darkest at the edges, so the world stays
         // legible in the middle where the card is being placed.
         g.fill(0, 0, width, height, 0x2E000000);
@@ -84,11 +85,11 @@ public class HudPositionScreen extends Screen {
     }
 
     @Override
-    public void render(@NotNull GuiGraphics g, int mouseX, int mouseY, float partial) {
-        renderBackground(g, mouseX, mouseY, partial);
+    public void extractRenderState(@NotNull GuiGraphicsExtractor g, int mouseX, int mouseY, float partial) {
+        extractBackground(g, mouseX, mouseY, partial);
 
-        g.drawCenteredString(font, "Drag the card to move it", width / 2, 12, Theme.TEXT);
-        g.drawCenteredString(font, "Snaps to edges. It cannot be moved during normal play.",
+        g.centeredText(font, "Drag the card to move it", width / 2, 12, Theme.TEXT);
+        g.centeredText(font, "Snaps to edges. It cannot be moved during normal play.",
                 width / 2, 24, Theme.TEXT_FAINT);
 
         int w = MiniPlayerHud.width();
@@ -114,11 +115,13 @@ public class HudPositionScreen extends Screen {
         g.fill(cardX - 1, cardY, cardX, cardY + h, outline);
         g.fill(cardX + w, cardY, cardX + w + 1, cardY + h, outline);
 
-        super.render(g, mouseX, mouseY, partial);
+        super.extractRenderState(g, mouseX, mouseY, partial);
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubled) {
+        double mouseX = event.x(), mouseY = event.y();
+        int button = event.button();
         int w = MiniPlayerHud.width();
         int h = MiniPlayerHud.height();
         if (button == 0 && mouseX >= cardX && mouseX < cardX + w
@@ -128,12 +131,14 @@ public class HudPositionScreen extends Screen {
             grabDy = (int) mouseY - cardY;
             return true;
         }
-        return super.mouseClicked(mouseX, mouseY, button);
+        return super.mouseClicked(event, doubled);
     }
 
     @Override
-    public boolean mouseDragged(double mouseX, double mouseY, int button, double dx, double dy) {
-        if (!dragging) return super.mouseDragged(mouseX, mouseY, button, dx, dy);
+    public boolean mouseDragged(MouseButtonEvent event, double dx, double dy) {
+        double mouseX = event.x(), mouseY = event.y();
+        int button = event.button();
+        if (!dragging) return super.mouseDragged(event, dx, dy);
         int w = MiniPlayerHud.width();
         int h = MiniPlayerHud.height();
         cardX = clamp((int) mouseX - grabDx, 0, width - w);
@@ -148,13 +153,15 @@ public class HudPositionScreen extends Screen {
     }
 
     @Override
-    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+    public boolean mouseReleased(MouseButtonEvent event) {
+        double mouseX = event.x(), mouseY = event.y();
+        int button = event.button();
         if (dragging) {
             dragging = false;
             save();
             return true;
         }
-        return super.mouseReleased(mouseX, mouseY, button);
+        return super.mouseReleased(event);
     }
 
     private void save() {

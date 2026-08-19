@@ -1,7 +1,7 @@
 plugins {
     // fabric-loom is the Gradle plugin that knows how to build Fabric mods
     // (download Minecraft, remap mappings, run a dev client, etc.)
-    id 'fabric-loom' version '1.9-SNAPSHOT'
+    id 'net.fabricmc.fabric-loom' version '1.17-SNAPSHOT'
     id 'java'
 }
 
@@ -28,19 +28,17 @@ dependencies {
     // The Minecraft version we build against.
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
 
-    // Mojang's official (deobfuscated) names.
-    mappings loom.officialMojangMappings()
 
     // Fabric loader + the Fabric API (gives us keybinding + client-tick helpers).
-    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
-    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+    implementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
     // Mod Menu, compile-only on purpose: it gives us the config-button entrypoint
     // without becoming a requirement. Without Mod Menu installed the entrypoint is
     // simply never invoked, and nothing here is loaded.
-    modCompileOnly "com.terraformersmc:modmenu:${project.modmenu_version}"
+    compileOnly "com.terraformersmc:modmenu:${project.modmenu_version}"
     // Dev client only, so the config button can be tested. Not shipped.
-    modLocalRuntime "com.terraformersmc:modmenu:${project.modmenu_version}"
+    runtimeOnly "com.terraformersmc:modmenu:${project.modmenu_version}"
 
     // NOTE: deliberately NO embedded-browser library. Playback runs in a dedicated
     // real Chrome process launched by the mod (see browser/ChromeLauncher). Embedding
@@ -57,13 +55,13 @@ processResources {
 }
 
 tasks.withType(JavaCompile).configureEach {
-    it.options.release = 21
+    it.options.release = 25
     // -processing: we use annotations (@NotNull) with no annotation processor, which
     // is expected and would otherwise emit a warning on every build.
     it.options.compilerArgs << '-Xlint:all,-processing'
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_21
-    targetCompatibility = JavaVersion.VERSION_21
+    sourceCompatibility = JavaVersion.VERSION_25
+    targetCompatibility = JavaVersion.VERSION_25
 }

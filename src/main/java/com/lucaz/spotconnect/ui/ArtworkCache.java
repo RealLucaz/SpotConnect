@@ -3,9 +3,10 @@ package com.lucaz.spotconnect.ui;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.texture.DynamicTexture;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.slf4j.Logger;
 
 import javax.imageio.ImageIO;
@@ -61,7 +62,7 @@ public final class ArtworkCache {
         ImageIO.setUseCache(false);
     }
 
-    private record Entry(ResourceLocation location, int width, int height, int accent) { }
+    private record Entry(Identifier location, int width, int height, int accent) { }
 
     /**
      * Dominant colour per artwork URL, so pages can be tinted by the music itself.
@@ -126,7 +127,7 @@ public final class ArtworkCache {
      * Draws artwork at {@code (x,y)} scaled to {@code size}, starting the download if
      * needed. Safe to call every frame.
      */
-    public static void draw(GuiGraphics g, String url, int x, int y, int size) {
+    public static void draw(GuiGraphicsExtractor g, String url, int x, int y, int size) {
         draw(g, url, x, y, size, null);
     }
 
@@ -135,7 +136,7 @@ public final class ArtworkCache {
      *              tile - a deliberate-looking monogram rather than an empty grey box.
      *              Spotify itself does this for playlists with no cover.
      */
-    public static void draw(GuiGraphics g, String url, int x, int y, int size, String label) {
+    public static void draw(GuiGraphicsExtractor g, String url, int x, int y, int size, String label) {
         ModConfig cfg = ModConfig.get();
         boolean monograms = cfg.bool(ModConfig.Defaults.ART_MONOGRAMS);
         if (!cfg.bool(ModConfig.Defaults.ART_ENABLED)) {
@@ -161,7 +162,8 @@ public final class ArtworkCache {
         }
         // The 11-arg blit scales the WHOLE source image into the target rectangle; the
         // simpler overloads would crop a size x size corner of a 300px JPEG instead.
-        g.blit(e.location(), x, y, size, size, 0f, 0f, e.width(), e.height(), e.width(), e.height());
+        g.blit(RenderPipelines.GUI_TEXTURED, e.location(), x, y, 0f, 0f, size, size,
+                e.width(), e.height(), e.width(), e.height());
         if (in < 0.99f) {
             // Veil the new image with the page colour, thinning as it settles.
             g.fill(x, y, x + size, y + size,
@@ -170,7 +172,7 @@ public final class ArtworkCache {
     }
 
     /** A muted square so layout is stable before (or without) artwork. */
-    public static void drawPlaceholder(GuiGraphics g, int x, int y, int size) {
+    public static void drawPlaceholder(GuiGraphicsExtractor g, int x, int y, int size) {
         g.fill(x, y, x + size, y + size, Theme.PLACEHOLDER);
         int inset = Math.max(2, size / 4);
         g.fill(x + inset, y + inset, x + size - inset, y + size - inset,
@@ -178,7 +180,7 @@ public final class ArtworkCache {
     }
 
     /** Accent-coloured tile with the item's initial - used when artwork cannot be shown. */
-    public static void drawMonogram(GuiGraphics g, int x, int y, int size, String label) {
+    public static void drawMonogram(GuiGraphicsExtractor g, int x, int y, int size, String label) {
         int accent = Theme.accentFor(label);
         g.fill(x, y, x + size, y + size, accent);
         g.fillGradient(x, y, x + size, y + size,
@@ -186,7 +188,7 @@ public final class ArtworkCache {
         if (size >= 12) {
             String initial = label.trim().substring(0, 1).toUpperCase(Locale.ROOT);
             var font = Minecraft.getInstance().font;
-            g.drawString(font, initial,
+            g.text(font, initial,
                     x + (size - font.width(initial)) / 2, y + (size - 8) / 2,
                     Theme.alpha(Theme.TEXT, 0.92f), false);
         }
@@ -274,14 +276,14 @@ public final class ArtworkCache {
                     int r = (p >>> 16) & 0xFF;
                     int g = (p >>> 8) & 0xFF;
                     int b = p & 0xFF;
-                    image.setPixelRGBA(x, y, (a << 24) | (b << 16) | (g << 8) | r);
+                    image.setPixelABGR(x, y, (a << 24) | (b << 16) | (g << 8) | r);
                 }
             }
-            ResourceLocation loc = ResourceLocation.fromNamespaceAndPath(
+            Identifier loc = Identifier.fromNamespaceAndPath(
                     "spotconnect", "art/" + Integer.toHexString(url.hashCode() & 0x7FFFFFFF)
                             + "_" + w + "x" + h);
             // DynamicTexture takes ownership of the NativeImage - do NOT close it here.
-            Minecraft.getInstance().getTextureManager().register(loc, new DynamicTexture(image));
+            Minecraft.getInstance().getTextureManager().register(loc, new DynamicTexture(() -> "spotconnect-art", image));
             int accent = dominantColour(argb, w, h);
             ACCENTS.put(url, accent);
             READY.put(url, new Entry(loc, w, h, accent));

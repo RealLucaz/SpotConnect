@@ -8,7 +8,7 @@ import com.lucaz.spotconnect.ui.SpotifyScreen;
 import com.lucaz.spotconnect.ui.Theme;
 import com.lucaz.spotconnect.ui.UiText;
 import com.lucaz.spotconnect.ui.widget.Visualizer;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 
 /**
  * A full-bleed now-playing view: big cover, colour drawn from the art, and a visualizer.
@@ -33,7 +33,7 @@ public class NowPlayingScreen extends SpotifyScreen {
     protected void initContent() { }
 
     @Override
-    protected void renderContent(GuiGraphics g, int mouseX, int mouseY, float partial) {
+    protected void renderContent(GuiGraphicsExtractor g, int mouseX, int mouseY, float partial) {
         int x = contentX();
         int y = contentY();
         int w = contentW();
@@ -42,7 +42,7 @@ public class NowPlayingScreen extends SpotifyScreen {
         PlaybackState st = service.playback();
         if (!st.hasTrack()) {
             String msg = "Play something to see it here.";
-            g.drawString(font, msg, x + (w - UiText.width(msg)) / 2, y + h / 2 - 4,
+            g.text(font, msg, x + (w - UiText.width(msg)) / 2, y + h / 2 - 4,
                     Theme.TEXT_FAINT, false);
             return;
         }
@@ -70,9 +70,9 @@ public class NowPlayingScreen extends SpotifyScreen {
         // ---- title + artist, centred ----------------------------------------
         int ty = cy + cover + 8;
         String title = UiText.fit(st.track().name(), w - 16);
-        g.drawString(font, title, x + (w - UiText.width(title)) / 2, ty, Theme.TEXT, false);
+        g.text(font, title, x + (w - UiText.width(title)) / 2, ty, Theme.TEXT, false);
         String artist = UiText.fit(st.track().artist(), w - 16);
-        g.drawString(font, artist, x + (w - UiText.width(artist)) / 2, ty + 11,
+        g.text(font, artist, x + (w - UiText.width(artist)) / 2, ty + 11,
                 Theme.TEXT_MUTED, false);
 
         // ---- visualizer, filling the space that is left ---------------------
@@ -99,8 +99,8 @@ public class NowPlayingScreen extends SpotifyScreen {
 
             String left = SpotifyModels.formatDuration(service.progressMs());
             String right = SpotifyModels.formatDuration(dur);
-            g.drawString(font, left, x + 8, py - 10, Theme.TEXT_FAINT, false);
-            g.drawString(font, right, x + w - 8 - UiText.width(right), py - 10,
+            g.text(font, left, x + 8, py - 10, Theme.TEXT_FAINT, false);
+            g.text(font, right, x + w - 8 - UiText.width(right), py - 10,
                     Theme.TEXT_FAINT, false);
         }
     }

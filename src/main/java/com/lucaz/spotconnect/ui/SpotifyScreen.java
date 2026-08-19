@@ -17,7 +17,7 @@ import com.lucaz.spotconnect.ui.screen.SearchScreen;
 import com.lucaz.spotconnect.ui.screen.SettingsScreen;
 import com.lucaz.spotconnect.ui.widget.MiniPlayer;
 import com.lucaz.spotconnect.ui.widget.ScrollPanel;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
@@ -27,6 +27,8 @@ import java.util.List;
 import java.util.function.Supplier;
 import com.lucaz.spotconnect.config.ModConfig;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.input.KeyEvent;
 
 /**
  * Shared chrome for every Spotify screen: nav rail, content area, playback bar.
@@ -60,7 +62,7 @@ public abstract class SpotifyScreen extends Screen {
     protected String heading() { return getTitle().getString(); }
     protected String subheading() { return null; }
 
-    protected abstract void renderContent(GuiGraphics g, int mouseX, int mouseY, float partial);
+    protected abstract void renderContent(GuiGraphicsExtractor g, int mouseX, int mouseY, float partial);
     protected abstract void initContent();
 
     // ---- lifecycle ---------------------------------------------------------
@@ -103,7 +105,7 @@ public abstract class SpotifyScreen extends Screen {
      * renderables is private in 1.21.1 so we can't draw the widgets ourselves anyway.
      */
     @Override
-    public void renderBackground(@NotNull GuiGraphics g, int mouseX, int mouseY, float partial) {
+    public void extractBackground(@NotNull GuiGraphicsExtractor g, int mouseX, int mouseY, float partial) {
         // Translucent so the world stays readable behind the interface; the exact level
         // is the user's choice. Because this runs BEFORE anything else is drawn, the
         // treatment is identical across the whole screen - which is what the old
@@ -148,9 +150,9 @@ public abstract class SpotifyScreen extends Screen {
     }
 
     @Override
-    public void render(@NotNull GuiGraphics g, int mouseX, int mouseY, float partial) {
+    public void extractRenderState(@NotNull GuiGraphicsExtractor g, int mouseX, int mouseY, float partial) {
         // renderBackground() (our chrome + content) then the widget list, both from vanilla.
-        super.render(g, mouseX, mouseY, partial);
+        super.extractRenderState(g, mouseX, mouseY, partial);
         renderSidebarGrip(g, mouseX, mouseY);
         renderToast(g);
         // The playback bar sits above everything, including widgets.
@@ -167,7 +169,7 @@ public abstract class SpotifyScreen extends Screen {
      * Rises into place and fades out on its own, so feedback ("Playing X", "Searching",
      * an error) is noticeable without becoming permanent furniture.
      */
-    private void renderToast(GuiGraphics g) {
+    private void renderToast(GuiGraphicsExtractor g) {
         if (!ModConfig.get()
                 .bool(ModConfig.Defaults.UI_SHOW_STATUS)) return;
 
@@ -196,12 +198,12 @@ public abstract class SpotifyScreen extends Screen {
 
         Theme.roundedFill(g, tx, ty, tx + tw, ty + 13, Theme.alpha(0xFF1C1C1C, 0.92f * vis));
         g.fill(tx, ty + 1, tx + 1, ty + 12, Theme.alpha(Theme.GREEN, vis));
-        g.drawString(font, UiText.fit(toastText, tw - pad * 2), tx + pad, ty + 3,
+        g.text(font, UiText.fit(toastText, tw - pad * 2), tx + pad, ty + 3,
                 Theme.alpha(Theme.TEXT, vis), false);
     }
 
     /** Highlights the seam and draws grab handles when the pointer is near it. */
-    private void renderSidebarGrip(GuiGraphics g, int mouseX, int mouseY) {
+    private void renderSidebarGrip(GuiGraphicsExtractor g, int mouseX, int mouseY) {
         int edge = Theme.sidebarWidth();
         boolean hot = resizingSidebar || overSidebarGrip(mouseX, mouseY);
         int bottom = height - Theme.PLAYER_H;
@@ -231,7 +233,7 @@ public abstract class SpotifyScreen extends Screen {
         if (want == cursorIsResize) return;
         cursorIsResize = want;
         if (minecraft == null) return;
-        long window = minecraft.getWindow().getWindow();
+        long window = minecraft.getWindow().handle();
         if (want) {
             if (resizeCursor == 0L) {
                 resizeCursor = org.lwjgl.glfw.GLFW.glfwCreateStandardCursor(
@@ -250,19 +252,19 @@ public abstract class SpotifyScreen extends Screen {
     public void removed() {
         // Never leave the resize cursor applied once the screen is gone.
         if (cursorIsResize && minecraft != null) {
-            org.lwjgl.glfw.GLFW.glfwSetCursor(minecraft.getWindow().getWindow(), 0L);
+            org.lwjgl.glfw.GLFW.glfwSetCursor(minecraft.getWindow().handle(), 0L);
             cursorIsResize = false;
         }
         super.removed();
     }
 
-    private void renderHeader(GuiGraphics g, int mouseX, int mouseY) {
+    private void renderHeader(GuiGraphicsExtractor g, int mouseX, int mouseY) {
         int x = contentX();
         int baseline = Theme.HEADER_H - 15;
 
         if (parent != null) {
             boolean hov = overBack(mouseX, mouseY);
-            g.drawString(font, "< Back", x, baseline, hov ? Theme.TEXT : Theme.TEXT_MUTED, false);
+            g.text(font, "< Back", x, baseline, hov ? Theme.TEXT : Theme.TEXT_MUTED, false);
             x += UiText.width("< Back") + 14;
         }
 
@@ -271,13 +273,13 @@ public abstract class SpotifyScreen extends Screen {
         int rightClaim = 12 + (service.isConnected() ? 0 : UiText.width(service.stateLabel()) + 8);
         int available = (width - Theme.GAP_L - rightClaim) - x;
         String head = UiText.fit(heading(), Math.max(30, available));
-        g.drawString(font, head, x, baseline - 1, Theme.TEXT, false);
+        g.text(font, head, x, baseline - 1, Theme.TEXT, false);
         String sub = subheading();
         if (sub != null && !sub.isBlank()) {
             int subX = x + UiText.width(head) + 10;
             int subW = (width - Theme.GAP_L - rightClaim) - subX;
             if (subW > 24) {
-                g.drawString(font, UiText.fit(sub, subW), subX, baseline - 1,
+                g.text(font, UiText.fit(sub, subW), subX, baseline - 1,
                         Theme.TEXT_FAINT, false);
             }
         }
@@ -296,7 +298,7 @@ public abstract class SpotifyScreen extends Screen {
         if (!service.isConnected()) {
             String state = service.stateLabel();
             int sw = UiText.width(state);
-            g.drawString(font, state, dotX - sw - 6, baseline, Theme.TEXT_MUTED, false);
+            g.text(font, state, dotX - sw - 6, baseline, Theme.TEXT_MUTED, false);
         }
         // The dot breathes while connecting, so "working" is visible at a glance.
         if (service.isBusy()) {
@@ -336,7 +338,9 @@ public abstract class SpotifyScreen extends Screen {
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubled) {
+        double mouseX = event.x(), mouseY = event.y();
+        int button = event.button();
         if (playerBar.isOver(mouseX, mouseY)) {
             return playerBar.mouseClicked(mouseX, mouseY, button);
         }
@@ -354,11 +358,13 @@ public abstract class SpotifyScreen extends Screen {
         for (ScrollPanel p : panels) {
             if (p.mouseClicked(mouseX, mouseY, button)) return true;
         }
-        return super.mouseClicked(mouseX, mouseY, button);
+        return super.mouseClicked(event, doubled);
     }
 
     @Override
-    public boolean mouseDragged(double mouseX, double mouseY, int button, double dx, double dy) {
+    public boolean mouseDragged(MouseButtonEvent event, double dx, double dy) {
+        double mouseX = event.x(), mouseY = event.y();
+        int button = event.button();
         if (resizingSidebar && button == 0) {
             ModConfig.get().set(ModConfig.Defaults.UI_SIDEBAR_WIDTH,
                     (int) Math.max(Theme.SIDEBAR_W_MIN, Math.min(Theme.SIDEBAR_W_MAX, mouseX)));
@@ -370,7 +376,7 @@ public abstract class SpotifyScreen extends Screen {
         for (ScrollPanel p : panels) {
             if (p.mouseDragged(mouseX, mouseY, button)) return true;
         }
-        return super.mouseDragged(mouseX, mouseY, button, dx, dy);
+        return super.mouseDragged(event, dx, dy);
     }
 
     /** Re-runs the page's own layout after the rail is resized. */
@@ -383,7 +389,9 @@ public abstract class SpotifyScreen extends Screen {
     }
 
     @Override
-    public boolean mouseReleased(double mouseX, double mouseY, int button) {
+    public boolean mouseReleased(MouseButtonEvent event) {
+        double mouseX = event.x(), mouseY = event.y();
+        int button = event.button();
         if (resizingSidebar) {
             resizingSidebar = false;
             ModConfig.get().save();   // persist the new width
@@ -391,7 +399,7 @@ public abstract class SpotifyScreen extends Screen {
         }
         playerBar.mouseReleased(mouseX, mouseY, button);
         for (ScrollPanel p : panels) p.mouseReleased();
-        return super.mouseReleased(mouseX, mouseY, button);
+        return super.mouseReleased(event);
     }
 
     @Override
@@ -404,7 +412,8 @@ public abstract class SpotifyScreen extends Screen {
     }
 
     @Override
-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+    public boolean keyPressed(KeyEvent event) {
+        int keyCode = event.key(), scanCode = event.scancode(), modifiers = event.modifiers();
         if (keyCode == 259 && parent != null && !isTypingSomewhere()) {   // Backspace
             back();
             return true;
@@ -442,7 +451,7 @@ public abstract class SpotifyScreen extends Screen {
                 default -> { }
             }
         }
-        return super.keyPressed(keyCode, scanCode, modifiers);
+        return super.keyPressed(event);
     }
 
     protected boolean isTypingSomewhere() { return false; }
@@ -533,7 +542,7 @@ public abstract class SpotifyScreen extends Screen {
             return SpotifyService.get().sidebarPlaylists();
         }
 
-        void render(GuiGraphics g, int mouseX, int mouseY, SpotifyScreen screen) {
+        void render(GuiGraphicsExtractor g, int mouseX, int mouseY, SpotifyScreen screen) {
             var font = screen.font;
             g.fill(0, 0, Theme.sidebarWidth(), screen.height - Theme.PLAYER_H, Theme.SIDEBAR);
             g.fill(Theme.sidebarWidth() - 1, 0, Theme.sidebarWidth(), screen.height - Theme.PLAYER_H,
@@ -541,7 +550,7 @@ public abstract class SpotifyScreen extends Screen {
 
             // Brand
             g.fill(7, BRAND_Y - 1, 10, BRAND_Y + 8, Theme.GREEN);
-            g.drawString(font, "Spotify", 14, BRAND_Y, Theme.TEXT, false);
+            g.text(font, "Spotify", 14, BRAND_Y, Theme.TEXT, false);
             g.fill(7, BRAND_Y + 13, Theme.sidebarWidth() - 7, BRAND_Y + 14,
                     Theme.alpha(Theme.DIVIDER, 0.7f));
 
@@ -592,7 +601,7 @@ public abstract class SpotifyScreen extends Screen {
                             Theme.alpha(Theme.GREEN, 0.14f));
                     else if (hov) g.fill(0, rtop, Theme.sidebarWidth(), rbot, Theme.ROW_HOVER);
                     g.fill(3, py + 1, 5, py + 8, Theme.alpha(Theme.accentFor(p.name()), 0.85f));
-                    g.drawString(font, UiText.fit(p.name(), Theme.sidebarWidth() - 16), 9, py,
+                    g.text(font, UiText.fit(p.name(), Theme.sidebarWidth() - 16), 9, py,
                             active ? Theme.GREEN : hov ? Theme.TEXT : Theme.TEXT_MUTED, false);
                 }
                 py += ROW;
@@ -600,13 +609,13 @@ public abstract class SpotifyScreen extends Screen {
             g.disableScissor();
         }
 
-        private void drawSectionLabel(GuiGraphics g, Font font,
+        private void drawSectionLabel(GuiGraphicsExtractor g, Font font,
                                       String text, int y) {
             g.fill(7, y - 6, Theme.sidebarWidth() - 7, y - 5, Theme.alpha(Theme.DIVIDER, 0.7f));
-            g.drawString(font, text, 7, y, Theme.TEXT_FAINT, false);
+            g.text(font, text, 7, y, Theme.TEXT_FAINT, false);
         }
 
-        private void drawItem(GuiGraphics g, Font font, Item item,
+        private void drawItem(GuiGraphicsExtractor g, Font font, Item item,
                               int y, int mouseX, int mouseY, SpotifyScreen screen) {
             boolean active = item.type().isInstance(screen);
             int top = y - 3;
@@ -629,7 +638,7 @@ public abstract class SpotifyScreen extends Screen {
                         Theme.alpha(Theme.GREEN, 0.30f * press), 0x00000000);
             }
             int labelX = 9 + Math.round(2 * Anim.ease(hv)) + Math.round(press * 3);
-            g.drawString(font, UiText.fit(item.label(), Theme.sidebarWidth() - 14), labelX, y,
+            g.text(font, UiText.fit(item.label(), Theme.sidebarWidth() - 14), labelX, y,
                     active ? Theme.TEXT : Anim.mix(Theme.TEXT_MUTED, Theme.TEXT, hv), false);
         }
 

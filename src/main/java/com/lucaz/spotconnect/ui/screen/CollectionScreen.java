@@ -3,7 +3,7 @@ package com.lucaz.spotconnect.ui.screen;
 import com.lucaz.spotconnect.ui.SpotifyScreen;
 import com.lucaz.spotconnect.ui.Theme;
 import com.lucaz.spotconnect.ui.widget.CardGrid;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -65,10 +65,10 @@ public abstract class CollectionScreen<T> extends SpotifyScreen {
     }
 
     @Override
-    protected void renderContent(GuiGraphics g, int mouseX, int mouseY, float partial) {
+    protected void renderContent(GuiGraphicsExtractor g, int mouseX, int mouseY, float partial) {
         grid.setBounds(contentX(), contentY(), contentW(), contentH());
         if (loading) {
-            g.drawString(font, "Loading...", contentX(), contentY() + 4, Theme.TEXT_FAINT, false);
+            g.text(font, "Loading...", contentX(), contentY() + 4, Theme.TEXT_FAINT, false);
         }
     }
 }

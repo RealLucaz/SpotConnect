@@ -6,8 +6,8 @@ import com.lucaz.spotconnect.config.ModConfig;
 import com.lucaz.spotconnect.ui.Anim;
 import com.lucaz.spotconnect.ui.Theme;
 import com.lucaz.spotconnect.ui.UiText;
-import net.minecraft.Util;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.util.Util;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
@@ -322,16 +322,16 @@ public class SetupWizardScreen extends Screen {
      * Overriding it means our background IS the background, and no blur pass ever runs.
      */
     @Override
-    public void renderBackground(@NotNull GuiGraphics g, int mouseX, int mouseY, float partial) {
+    public void extractBackground(@NotNull GuiGraphicsExtractor g, int mouseX, int mouseY, float partial) {
         g.fill(0, 0, width, height, Theme.BACKGROUND);
         renderRail(g);
         renderPanel(g, mouseX, mouseY);
     }
 
     @Override
-    public void render(@NotNull GuiGraphics g, int mouseX, int mouseY, float partial) {
+    public void extractRenderState(@NotNull GuiGraphicsExtractor g, int mouseX, int mouseY, float partial) {
         // Background (ours, above) then the widget list, both from vanilla.
-        super.render(g, mouseX, mouseY, partial);
+        super.extractRenderState(g, mouseX, mouseY, partial);
 
         // On top of the buttons: the id check and the transient copy confirmation.
         if (index == idStep()) renderValidation(g);
@@ -339,14 +339,14 @@ public class SetupWizardScreen extends Screen {
     }
 
     /** Left column: every step at once, so the size of the job is never a mystery. */
-    private void renderRail(GuiGraphics g) {
+    private void renderRail(GuiGraphicsExtractor g) {
         int railW = Math.min(190, width / 3);
         g.fill(0, 0, railW, height, Theme.CARD);
         g.fill(railW, 0, railW + 1, height, Theme.DIVIDER);
 
-        g.drawString(font, "Set up SpotConnect", 12, 14, Theme.TEXT, false);
+        g.text(font, "Set up SpotConnect", 12, 14, Theme.TEXT, false);
         String prog = "Step " + (index + 1) + " of " + steps.length;
-        g.drawString(font, prog, 12, 26, Theme.TEXT_MUTED, false);
+        g.text(font, prog, 12, 26, Theme.TEXT_MUTED, false);
 
         // Progress bar, eased so it slides as you advance.
         int barW = railW - 24;
@@ -367,29 +367,29 @@ public class SetupWizardScreen extends Screen {
             // Tick for finished steps, number for the rest.
             int markColour = done ? Theme.GREEN : now ? Theme.TEXT : Theme.TEXT_FAINT;
             if (done) {
-                g.drawString(font, "✔", 12, y, markColour, false);
+                g.text(font, "✔", 12, y, markColour, false);
             } else {
-                g.drawString(font, String.valueOf(i + 1), 14, y, markColour, false);
+                g.text(font, String.valueOf(i + 1), 14, y, markColour, false);
             }
-            g.drawString(font, UiText.fit(steps[i].title(), railW - 38), 26, y,
+            g.text(font, UiText.fit(steps[i].title(), railW - 38), 26, y,
                     now ? Theme.TEXT : done ? Theme.TEXT_MUTED : Theme.TEXT_FAINT, false);
             y += rowH;
         }
     }
 
-    private void renderPanel(GuiGraphics g, int mouseX, int mouseY) {
+    private void renderPanel(GuiGraphicsExtractor g, int mouseX, int mouseY) {
         int x = panelX();
         Step s = steps[index];
 
-        g.drawString(font, "STEP " + (index + 1), x, 16, Theme.GREEN, false);
-        g.drawString(font, s.title(), x, 30, Theme.TEXT, false);
+        g.text(font, "STEP " + (index + 1), x, 16, Theme.GREEN, false);
+        g.text(font, s.title(), x, 30, Theme.TEXT, false);
         g.fill(x, 44, x + 28, 45, Theme.GREEN);
 
         int y = 56;
         for (String line : s.body()) {
             if (line.isEmpty()) { y += 6; continue; }
             boolean mono = line.equals(DASHBOARD_URL);
-            g.drawString(font, UiText.fit(line, width - x - 24), x, y,
+            g.text(font, UiText.fit(line, width - x - 24), x, y,
                     mono ? Theme.GREEN : Theme.TEXT_MUTED, false);
             y += 11;
         }
@@ -399,12 +399,12 @@ public class SetupWizardScreen extends Screen {
         if (s.actionLabel() != null && s.actionLabel().contains("redirect")) {
             int boxW = Math.min(width - x - 24, 280);
             Theme.surface(g, x, y + 4, x + boxW, y + 22, Theme.CHIP);
-            g.drawString(font, UiText.fit(REDIRECT, boxW - 10), x + 5, y + 10,
+            g.text(font, UiText.fit(REDIRECT, boxW - 10), x + 5, y + 10,
                     Theme.GREEN, false);
         }
     }
 
-    private void renderValidation(GuiGraphics g) {
+    private void renderValidation(GuiGraphicsExtractor g) {
         int x = panelX();
         int yb = height - 34 - 62;
         String v = idBox.getValue().trim();
@@ -420,10 +420,10 @@ public class SetupWizardScreen extends Screen {
             msg = "Should be 32 letters/numbers - yours is " + v.length();
             colour = Theme.TEXT_ERROR;
         }
-        g.drawString(font, msg, x, yb + 22, colour, false);
+        g.text(font, msg, x, yb + 22, colour, false);
     }
 
-    private void renderToast(GuiGraphics g) {
+    private void renderToast(GuiGraphicsExtractor g) {
         if (toast.isEmpty()) return;
         long age = System.currentTimeMillis() - toastAt;
         if (age > 2600) { toast = ""; return; }
@@ -432,7 +432,7 @@ public class SetupWizardScreen extends Screen {
         int x = width - w - 16;
         int y = 16;
         Theme.surface(g, x, y, x + w, y + 16, Theme.alpha(Theme.CARD_HOVER, a));
-        g.drawString(font, toast, x + 8, y + 4, Theme.alpha(Theme.TEXT, a), false);
+        g.text(font, toast, x + 8, y + 4, Theme.alpha(Theme.TEXT, a), false);
     }
 
     @Override

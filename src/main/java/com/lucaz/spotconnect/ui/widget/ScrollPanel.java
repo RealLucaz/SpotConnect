@@ -1,7 +1,7 @@
 package com.lucaz.spotconnect.ui.widget;
 
 import com.lucaz.spotconnect.ui.Theme;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import com.lucaz.spotconnect.config.ModConfig;
 
 /**
@@ -48,7 +48,7 @@ public abstract class ScrollPanel {
      * belongs; it is already scrolled, so a row at content-offset {@code o} goes at
      * {@code topY + o}.
      */
-    protected abstract void renderContent(GuiGraphics g, int mouseX, int mouseY,
+    protected abstract void renderContent(GuiGraphicsExtractor g, int mouseX, int mouseY,
                                           int topY, float partial);
 
     /**
@@ -74,7 +74,7 @@ public abstract class ScrollPanel {
 
     // ------------------------------------------------------------------ render
 
-    public void render(GuiGraphics g, int mouseX, int mouseY, float partial) {
+    public void render(GuiGraphicsExtractor g, int mouseX, int mouseY, float partial) {
         // Ease towards the target: 0.35 is fast enough to feel immediate but still smooth.
         boolean smooth = ModConfig.get()
                 .bool(ModConfig.Defaults.UI_SMOOTH_SCROLL);
@@ -91,7 +91,7 @@ public abstract class ScrollPanel {
     /** When the view last moved, so the bar can fade out while nothing is happening. */
     private long lastScrollAt;
 
-    private void renderBar(GuiGraphics g) {
+    private void renderBar(GuiGraphicsExtractor g) {
         // Fade the bar out a second after scrolling stops: present when it is useful,
         // out of the way when it is not.
         long idle = System.currentTimeMillis() - lastScrollAt;

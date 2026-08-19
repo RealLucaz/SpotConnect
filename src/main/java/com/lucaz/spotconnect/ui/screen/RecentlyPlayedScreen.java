@@ -5,7 +5,7 @@ import com.lucaz.spotconnect.ui.SpotifyScreen;
 import com.lucaz.spotconnect.ui.Theme;
 import com.lucaz.spotconnect.ui.widget.ListPanel;
 import com.lucaz.spotconnect.ui.widget.Rows;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 
 import java.util.List;
 import com.lucaz.spotconnect.SpotifyService;
@@ -63,7 +63,7 @@ public class RecentlyPlayedScreen extends SpotifyScreen {
     }
 
     @Override
-    protected void renderContent(GuiGraphics g, int mouseX, int mouseY, float partial) {
+    protected void renderContent(GuiGraphicsExtractor g, int mouseX, int mouseY, float partial) {
         list.setBounds(contentX(), contentY(), contentW(), contentH());
         if (loading && tracks.isEmpty()) {
             Rows.skeleton(g, contentX(), contentY() + 2, contentW(), Theme.ROW_H, 7);

@@ -10,10 +10,12 @@ import com.lucaz.spotconnect.ui.Theme;
 import com.lucaz.spotconnect.ui.widget.ListPanel;
 import com.lucaz.spotconnect.ui.widget.Rows;
 import com.lucaz.spotconnect.ui.widget.Tabs;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
 import com.lucaz.spotconnect.config.ModConfig;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.input.KeyEvent;
 
 /**
  * Search across songs, albums, artists and playlists.
@@ -151,14 +153,14 @@ public class SearchScreen extends SpotifyScreen {
     }
 
     @Override
-    public void render(GuiGraphics g, int mouseX, int mouseY, float partial) {
+    public void extractRenderState(GuiGraphicsExtractor g, int mouseX, int mouseY, float partial) {
         panels.clear();
         panels.add(activeList());
-        super.render(g, mouseX, mouseY, partial);
+        super.extractRenderState(g, mouseX, mouseY, partial);
     }
 
     @Override
-    protected void renderContent(GuiGraphics g, int mouseX, int mouseY, float partial) {
+    protected void renderContent(GuiGraphicsExtractor g, int mouseX, int mouseY, float partial) {
         int x = contentX();
         int w = contentW();
         int tabsY = contentY() + 22;
@@ -167,41 +169,44 @@ public class SearchScreen extends SpotifyScreen {
 
         int msgY = contentY() + 44;
         if (loading) {
-            g.drawString(font, "Searching Spotify...", x, msgY, Theme.TEXT_FAINT, false);
+            g.text(font, "Searching Spotify...", x, msgY, Theme.TEXT_FAINT, false);
         } else if (lastSearched.isEmpty()) {
-            g.drawString(font, "Type to search Spotify.", x, msgY, Theme.TEXT_FAINT, false);
-            g.drawString(font, "Left click plays. Right click adds to the queue.", x, msgY + 12,
+            g.text(font, "Type to search Spotify.", x, msgY, Theme.TEXT_FAINT, false);
+            g.text(font, "Left click plays. Right click adds to the queue.", x, msgY + 12,
                     Theme.TEXT_FAINT, false);
         } else if (searchFailed) {
-            g.drawString(font, "Search could not reach Spotify.", x, msgY,
+            g.text(font, "Search could not reach Spotify.", x, msgY,
                     Theme.TEXT_ERROR, false);
-            g.drawString(font, "Check the connection indicator, then try again.", x, msgY + 12,
+            g.text(font, "Check the connection indicator, then try again.", x, msgY + 12,
                     Theme.TEXT_FAINT, false);
         } else if (activeList().isEmpty()) {
-            g.drawString(font, "No " + TAB_LABELS[tab.ordinal()].toLowerCase()
+            g.text(font, "No " + TAB_LABELS[tab.ordinal()].toLowerCase()
                     + " found for \"" + lastSearched + "\"", x, msgY, Theme.TEXT_FAINT, false);
         }
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubled) {
+        double mouseX = event.x(), mouseY = event.y();
+        int button = event.button();
         int tabsY = contentY() + 22;
         if (button == 0 && mouseY >= tabsY - 2 && mouseY < tabsY + 11 && mouseX >= contentX()) {
             int idx = Tabs.hit(TAB_LABELS, contentX(), tabsY, mouseX, mouseY);
             if (idx >= 0) { tab = Tab.values()[idx]; return true; }
         }
-        return super.mouseClicked(mouseX, mouseY, button);
+        return super.mouseClicked(event, doubled);
     }
 
     @Override
-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+    public boolean keyPressed(KeyEvent event) {
+        int keyCode = event.key(), scanCode = event.scancode(), modifiers = event.modifiers();
         // Enter searches immediately instead of waiting out the debounce.
         if ((keyCode == 257 || keyCode == 335) && queryBox != null && queryBox.isFocused()) {
             debounce = -1;
             runSearch(pendingQuery);
             return true;
         }
-        return super.keyPressed(keyCode, scanCode, modifiers);
+        return super.keyPressed(event);
     }
 
     @Override

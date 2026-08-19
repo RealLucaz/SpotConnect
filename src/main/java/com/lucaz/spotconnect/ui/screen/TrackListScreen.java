@@ -7,7 +7,7 @@ import com.lucaz.spotconnect.ui.Theme;
 import com.lucaz.spotconnect.ui.UiText;
 import com.lucaz.spotconnect.ui.widget.ListPanel;
 import com.lucaz.spotconnect.ui.widget.Rows;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import com.lucaz.spotconnect.ui.widget.Glyphs;
 import com.lucaz.spotconnect.ui.widget.PillButton;
 import net.minecraft.client.gui.screens.Screen;
@@ -140,7 +140,7 @@ public abstract class TrackListScreen extends SpotifyScreen {
     }
 
     @Override
-    protected void renderContent(GuiGraphics g, int mouseX, int mouseY, float partial) {
+    protected void renderContent(GuiGraphicsExtractor g, int mouseX, int mouseY, float partial) {
         int x = contentX();
         int w = contentW();
         int y = contentY();
@@ -158,13 +158,13 @@ public abstract class TrackListScreen extends SpotifyScreen {
 
         int tx = x + art + 6;
         int tw = w - (tx - x) - 6;
-        g.drawString(font, UiText.fit(bigTitle(), tw), tx, y + 1, Theme.TEXT, false);
-        g.drawString(font, UiText.fit(meta(), tw), tx, y + 11, Theme.TEXT_MUTED, false);
+        g.text(font, UiText.fit(bigTitle(), tw), tx, y + 1, Theme.TEXT, false);
+        g.text(font, UiText.fit(meta(), tw), tx, y + 11, Theme.TEXT_MUTED, false);
         String desc = description();
         if (desc != null && !desc.isBlank()) {
             // Stop short of the button band on the right of the same line.
             int descW = Math.max(20, w - (tx - x) - 130);
-            g.drawString(font, UiText.fit(stripTags(desc), descW), tx, y + 21,
+            g.text(font, UiText.fit(stripTags(desc), descW), tx, y + 21,
                     Theme.TEXT_FAINT, false);
         }
 

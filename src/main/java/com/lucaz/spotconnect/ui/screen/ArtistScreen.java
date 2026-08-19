@@ -11,13 +11,14 @@ import com.lucaz.spotconnect.ui.UiText;
 import com.lucaz.spotconnect.ui.widget.ListPanel;
 import com.lucaz.spotconnect.ui.widget.Rows;
 import com.lucaz.spotconnect.ui.widget.Tabs;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import com.lucaz.spotconnect.ui.widget.Glyphs;
 import com.lucaz.spotconnect.ui.widget.PillButton;
 import net.minecraft.client.gui.screens.Screen;
 
 import java.util.List;
 import com.lucaz.spotconnect.SpotifyService;
+import net.minecraft.client.input.MouseButtonEvent;
 
 /** One artist: popular tracks, albums and singles. */
 public class ArtistScreen extends SpotifyScreen {
@@ -124,14 +125,14 @@ public class ArtistScreen extends SpotifyScreen {
     }
 
     @Override
-    public void render(GuiGraphics g, int mouseX, int mouseY, float partial) {
+    public void extractRenderState(GuiGraphicsExtractor g, int mouseX, int mouseY, float partial) {
         panels.clear();
         panels.add(activeList());
-        super.render(g, mouseX, mouseY, partial);
+        super.extractRenderState(g, mouseX, mouseY, partial);
     }
 
     @Override
-    protected void renderContent(GuiGraphics g, int mouseX, int mouseY, float partial) {
+    protected void renderContent(GuiGraphicsExtractor g, int mouseX, int mouseY, float partial) {
         int x = contentX();
         int w = contentW();
         int y = contentY();
@@ -140,9 +141,9 @@ public class ArtistScreen extends SpotifyScreen {
         ArtworkCache.draw(g, artist.imageUrl(), x, y, art);
 
         int tx = x + art + 8;
-        g.drawString(font, UiText.fit(artist.name(), w - (tx - x) - 8), tx, y + 2,
+        g.text(font, UiText.fit(artist.name(), w - (tx - x) - 8), tx, y + 2,
                 Theme.TEXT, false);
-        g.drawString(font, "Artist", tx, y + 14, Theme.TEXT_MUTED, false);
+        g.text(font, "Artist", tx, y + 14, Theme.TEXT_MUTED, false);
 
         int tabsY = contentY() + HEADER_H + 4;
         Tabs.render(g, "artist", TAB_LABELS, tab.ordinal(), x, tabsY, w, mouseX, mouseY);
@@ -153,12 +154,14 @@ public class ArtistScreen extends SpotifyScreen {
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubled) {
+        double mouseX = event.x(), mouseY = event.y();
+        int button = event.button();
         int tabsY = contentY() + HEADER_H + 4;
         if (button == 0 && mouseY >= tabsY - 2 && mouseY < tabsY + 11 && mouseX >= contentX()) {
             int idx = Tabs.hit(TAB_LABELS, contentX(), tabsY, mouseX, mouseY);
             if (idx >= 0) { tab = Tab.values()[idx]; return true; }
         }
-        return super.mouseClicked(mouseX, mouseY, button);
+        return super.mouseClicked(event, doubled);
     }
 }

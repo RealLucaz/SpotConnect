@@ -12,11 +12,12 @@ import com.lucaz.spotconnect.ui.UiText;
 import com.lucaz.spotconnect.ui.settings.Option;
 import com.lucaz.spotconnect.ui.widget.Icons;
 import com.lucaz.spotconnect.ui.widget.ListPanel;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 
 import java.util.ArrayList;
 import java.util.List;
+import net.minecraft.client.input.MouseButtonEvent;
 
 /**
  * Settings, grouped into sections with a category rail of their own.
@@ -29,7 +30,7 @@ public class SettingsScreen extends SpotifyScreen {
 
     /** An icon painter, so categories can carry a glyph without a texture. */
     private interface IconPainter {
-        void paint(GuiGraphics g, int x, int y, int size, int colour);
+        void paint(GuiGraphicsExtractor g, int x, int y, int size, int colour);
     }
 
     private record Category(String name, IconPainter icon, String prefix, List<Option> options) { }
@@ -229,7 +230,7 @@ public class SettingsScreen extends SpotifyScreen {
     }
 
     @Override
-    protected void renderContent(GuiGraphics g, int mouseX, int mouseY, float partial) {
+    protected void renderContent(GuiGraphicsExtractor g, int mouseX, int mouseY, float partial) {
         layout();
         int x = contentX();
         int y = contentY() + 2;
@@ -251,7 +252,7 @@ public class SettingsScreen extends SpotifyScreen {
 
             int iconColour = active ? Theme.GREEN : hovered ? Theme.TEXT : Theme.TEXT_MUTED;
             c.icon().paint(g, x + 7, ry + 4, 8, iconColour);
-            g.drawString(font, UiText.fit(c.name(), CAT_W - 22), x + 19, ry + 4,
+            g.text(font, UiText.fit(c.name(), CAT_W - 22), x + 19, ry + 4,
                     active ? Theme.TEXT : hovered ? Theme.TEXT : Theme.TEXT_MUTED, false);
         }
 
@@ -260,7 +261,7 @@ public class SettingsScreen extends SpotifyScreen {
         boolean overReset = mouseX >= x && mouseX < x + CAT_W
                 && mouseY >= resetY && mouseY < resetY + 12;
         Icons.reset(g, x + 7, resetY + 2, 7, overReset ? Theme.TEXT : Theme.TEXT_FAINT);
-        g.drawString(font, "Reset section", x + 19, resetY + 2,
+        g.text(font, "Reset section", x + 19, resetY + 2,
                 overReset ? Theme.TEXT : Theme.TEXT_FAINT, false);
 
         g.fill(x + CAT_W + 2, contentY(), x + CAT_W + 3, contentY() + contentH(),
@@ -268,7 +269,9 @@ public class SettingsScreen extends SpotifyScreen {
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubled) {
+        double mouseX = event.x(), mouseY = event.y();
+        int button = event.button();
         int x = contentX();
         int y = contentY() + 2;
 
@@ -301,6 +304,6 @@ public class SettingsScreen extends SpotifyScreen {
                 }
             }
         }
-        return super.mouseClicked(mouseX, mouseY, button);
+        return super.mouseClicked(event, doubled);
     }
 }

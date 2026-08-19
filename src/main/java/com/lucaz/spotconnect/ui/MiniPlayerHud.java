@@ -6,7 +6,7 @@ import com.lucaz.spotconnect.config.ModConfig.Defaults;
 import com.lucaz.spotconnect.spotify.SpotifyModels;
 import com.lucaz.spotconnect.spotify.SpotifyModels.PlaybackState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 
 /**
  * The now-playing card drawn over the world.
@@ -55,7 +55,7 @@ public final class MiniPlayerHud {
 
     // ------------------------------------------------------------------ render
 
-    public static void render(GuiGraphics g, Minecraft mc) {
+    public static void render(GuiGraphicsExtractor g, Minecraft mc) {
         ModConfig cfg = cfg();
         if (!cfg.bool(Defaults.HUD_ENABLED)) return;
         if (!SpotifyService.isCreated()) return;
@@ -97,7 +97,7 @@ public final class MiniPlayerHud {
      * Paints the card at an explicit position. Shared by the world HUD and the positioning
      * screen, so what the user drags is exactly what they get in game.
      */
-    public static void draw(GuiGraphics g, Minecraft mc, int x, int y, float alpha,
+    public static void draw(GuiGraphicsExtractor g, Minecraft mc, int x, int y, float alpha,
                             SpotifyService service, PlaybackState st, boolean playing) {
         ModConfig cfg = cfg();
         int w = width();
@@ -171,8 +171,8 @@ public final class MiniPlayerHud {
             // Two 10px line boxes centred in the available area.
             int block = 20;
             int top = textTop + Math.max(0, (textAreaH - block) / 2);
-            g.drawString(mc.font, UiText.fit(title, textW), textX, top, textColour, false);
-            g.drawString(mc.font, UiText.fit(artist, textW), textX, top + 10, subColour, false);
+            g.text(mc.font, UiText.fit(title, textW), textX, top, textColour, false);
+            g.text(mc.font, UiText.fit(artist, textW), textX, top + 10, subColour, false);
         } else {
             // One line, vertically centred - no second line to overflow.
             int top = textTop + Math.max(0, (textAreaH - 9) / 2);
@@ -181,12 +181,12 @@ public final class MiniPlayerHud {
                     && UiText.width(title + "  " + artist) <= textW) {
                 single = title + "  " + artist;
             }
-            g.drawString(mc.font, UiText.fit(single, textW), textX, top, textColour, false);
+            g.text(mc.font, UiText.fit(single, textW), textX, top, textColour, false);
         }
 
         if (timeText != null) {
             int tx = x + w - 4 - UiText.width(timeText) - (playing ? 0 : 10);
-            g.drawString(mc.font, timeText, tx,
+            g.text(mc.font, timeText, tx,
                     y + (h - progressH - 8) / 2, Theme.alpha(Theme.TEXT_FAINT, alpha), false);
         }
 

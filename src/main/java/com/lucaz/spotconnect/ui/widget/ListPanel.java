@@ -1,7 +1,7 @@
 package com.lucaz.spotconnect.ui.widget;
 
 import com.lucaz.spotconnect.ui.Theme;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +24,7 @@ public class ListPanel<T> extends ScrollPanel {
 
     /** Draws one row. Coordinates are absolute; {@code hovered} drives highlighting. */
     public interface RowRenderer<T> {
-        void render(GuiGraphics g, T item, int index, int x, int y, int width, int height,
+        void render(GuiGraphicsExtractor g, T item, int index, int x, int y, int width, int height,
                     boolean hovered);
     }
 
@@ -80,7 +80,7 @@ public class ListPanel<T> extends ScrollPanel {
     public int contentHeight() { return items.size() * rowHeight; }
 
     @Override
-    protected void renderContent(GuiGraphics g, int mouseX, int mouseY, int topY, float partial) {
+    protected void renderContent(GuiGraphicsExtractor g, int mouseX, int mouseY, int topY, float partial) {
         if (items.isEmpty()) {
             if (emptyText == null || emptyText.isBlank()) return;
             Minecraft mc = Minecraft.getInstance();
@@ -91,7 +91,7 @@ public class ListPanel<T> extends ScrollPanel {
                     Theme.alpha(Theme.TEXT_FAINT, 0.55f));
             for (String line : UiText.wrap(emptyText,
                     Math.min(width - 20, 220), 2)) {
-                g.drawString(mc.font, line,
+                g.text(mc.font, line,
                         cx - UiText.width(line) / 2, cy,
                         Theme.TEXT_FAINT, false);
                 cy += 11;

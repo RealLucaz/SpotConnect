@@ -9,8 +9,9 @@ import com.lucaz.spotconnect.ui.Theme;
 import com.lucaz.spotconnect.ui.widget.ListPanel;
 import com.lucaz.spotconnect.ui.widget.Rows;
 import com.lucaz.spotconnect.ui.widget.Tabs;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import com.lucaz.spotconnect.SpotifyService;
+import net.minecraft.client.input.MouseButtonEvent;
 
 /**
  * Your Library: playlists, liked songs, saved albums, followed artists and recent plays.
@@ -136,14 +137,14 @@ public class LibraryScreen extends SpotifyScreen {
     }
 
     @Override
-    public void render(GuiGraphics g, int mouseX, int mouseY, float partial) {
+    public void extractRenderState(GuiGraphicsExtractor g, int mouseX, int mouseY, float partial) {
         panels.clear();
         panels.add(activeList());
-        super.render(g, mouseX, mouseY, partial);
+        super.extractRenderState(g, mouseX, mouseY, partial);
     }
 
     @Override
-    protected void renderContent(GuiGraphics g, int mouseX, int mouseY, float partial) {
+    protected void renderContent(GuiGraphicsExtractor g, int mouseX, int mouseY, float partial) {
         int x = contentX();
         int w = contentW();
         int tabsY = contentY();
@@ -156,12 +157,14 @@ public class LibraryScreen extends SpotifyScreen {
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubled) {
+        double mouseX = event.x(), mouseY = event.y();
+        int button = event.button();
         int tabsY = contentY();
         if (button == 0 && mouseY >= tabsY - 2 && mouseY < tabsY + 11 && mouseX >= contentX()) {
             int idx = Tabs.hit(TAB_LABELS, contentX(), tabsY, mouseX, mouseY);
             if (idx >= 0) { if (Tab.values()[idx] == Tab.LIKED) { open(new LikedSongsScreen(this)); return true; } tab = Tab.values()[idx]; ensureLoaded(); return true; }
         }
-        return super.mouseClicked(mouseX, mouseY, button);
+        return super.mouseClicked(event, doubled);
     }
 }

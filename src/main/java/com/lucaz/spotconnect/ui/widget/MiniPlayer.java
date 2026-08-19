@@ -8,7 +8,7 @@ import com.lucaz.spotconnect.ui.ArtworkCache;
 import com.lucaz.spotconnect.ui.Theme;
 import com.lucaz.spotconnect.ui.UiText;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import com.lucaz.spotconnect.config.ModConfig;
 
 /**
@@ -54,7 +54,7 @@ public final class MiniPlayer {
 
     // ------------------------------------------------------------------ render
 
-    public void render(GuiGraphics g, int mouseX, int mouseY) {
+    public void render(GuiGraphicsExtractor g, int mouseX, int mouseY) {
         Minecraft mc = Minecraft.getInstance();
         PlaybackState st = service.playback();
 
@@ -95,7 +95,7 @@ public final class MiniPlayer {
     }
 
     /** Left column: artwork, title, artist. */
-    private void renderNowPlaying(GuiGraphics g, Minecraft mc, PlaybackState st, int sideW) {
+    private void renderNowPlaying(GuiGraphicsExtractor g, Minecraft mc, PlaybackState st, int sideW) {
         int art = Math.max(12, height - 12);
         int ax = x + 5;
         int ay = y + (height - art) / 2;
@@ -120,16 +120,16 @@ public final class MiniPlayer {
             }
             int slide = Math.round((1f - in) * 9);
 
-            g.drawString(mc.font, UiText.fit(st.track().name(), textW), textX + slide, y + 8,
+            g.text(mc.font, UiText.fit(st.track().name(), textW), textX + slide, y + 8,
                     Theme.alpha(Theme.TEXT, in), false);
             // The artist trails the title slightly, which makes the pair feel connected.
             float in2 = Anim.ease(Math.min(1f, in * 1.35f - 0.35f));
-            g.drawString(mc.font, UiText.fit(st.track().artist(), textW),
+            g.text(mc.font, UiText.fit(st.track().artist(), textW),
                     textX + Math.round((1f - in2) * 9), y + 19,
                     Theme.alpha(Theme.TEXT_MUTED, in2), false);
         } else {
             shownUri = null;
-            g.drawString(mc.font, "Nothing playing", textX, y + 13, Theme.TEXT_FAINT, false);
+            g.text(mc.font, "Nothing playing", textX, y + 13, Theme.TEXT_FAINT, false);
         }
     }
 
@@ -146,7 +146,7 @@ public final class MiniPlayer {
      * Shuffle and repeat belong here with the transport. Grouping them on the right
      * edge is exactly what made that side feel crammed while leaving space unused.
      */
-    private void renderTransport(GuiGraphics g, int mouseX, int mouseY, int centre) {
+    private void renderTransport(GuiGraphicsExtractor g, int mouseX, int mouseY, int centre) {
         controlsY = y + 7;
         int gap = 15;
         playX    = centre - PLAY_ICON / 2;
@@ -206,13 +206,13 @@ public final class MiniPlayer {
                         Anim.hover("mp.repH", hover(mouseX, mouseY, repeatX, iy, ICON))),
                 Theme.GREEN, repeatOn));
         if ("track".equals(repeatMode)) {
-            g.drawString(Minecraft.getInstance().font, "1", repeatX + ICON - 2, iy + 1,
+            g.text(Minecraft.getInstance().font, "1", repeatX + ICON - 2, iy + 1,
                     Theme.GREEN, false);
         }
     }
 
     /** Centre column, bottom row: elapsed, progress, duration - centred under the controls. */
-    private void renderSeek(GuiGraphics g, Minecraft mc, PlaybackState st,
+    private void renderSeek(GuiGraphicsExtractor g, Minecraft mc, PlaybackState st,
                             int mouseX, int mouseY, int centre, int sideW) {
         long duration = st.durationMs();
         long progress = draggingSeek && duration > 0
@@ -231,9 +231,9 @@ public final class MiniPlayer {
         seekX = centre - seekW / 2;
         seekY = y + height - 10;
 
-        g.drawString(mc.font, left, seekX - UiText.width(left) - 5, seekY - 3,
+        g.text(mc.font, left, seekX - UiText.width(left) - 5, seekY - 3,
                 Theme.TEXT_FAINT, false);
-        g.drawString(mc.font, right, seekX + seekW + 5, seekY - 3, Theme.TEXT_FAINT, false);
+        g.text(mc.font, right, seekX + seekW + 5, seekY - 3, Theme.TEXT_FAINT, false);
 
         boolean hot = overSeek(mouseX, mouseY) || draggingSeek;
         g.fill(seekX, seekY, seekX + seekW, seekY + 2, Theme.TRACK_EMPTY);
@@ -249,7 +249,7 @@ public final class MiniPlayer {
     }
 
     /** Right column: the DJ pill when live, then volume - right-aligned with real room. */
-    private void renderRight(GuiGraphics g, Minecraft mc, int mouseX, int mouseY, int sideW) {
+    private void renderRight(GuiGraphicsExtractor g, Minecraft mc, int mouseX, int mouseY, int sideW) {
         int rightEdge = x + width - 8;
         volY = y + height / 2 - 1;
 
@@ -268,7 +268,7 @@ public final class MiniPlayer {
             g.fill(volX + filled - r, volY + 1 - r, volX + filled + r, volY + 1 + r,
                     Theme.alpha(Theme.TEXT, volHv));
             String pct = vol + "%";
-            g.drawString(mc.font, pct, volX + volW - UiText.width(pct), volY - 12,
+            g.text(mc.font, pct, volX + volW - UiText.width(pct), volY - 12,
                     Theme.alpha(Theme.TEXT_MUTED, volHv), false);
         }
         Glyphs.volume(g, volX - 12, volY - 3, 8, hot ? Theme.TEXT : Theme.TEXT_MUTED);
@@ -284,7 +284,7 @@ public final class MiniPlayer {
             g.fill(djX, volY - 6, djX + djW, volY + 7,
                     !ready ? Theme.alpha(Theme.GREEN, 0.35f)
                            : over ? Theme.GREEN_HOVER : Theme.alpha(Theme.GREEN, 0.85f));
-            g.drawString(mc.font, label, djX + 5, volY - 3, 0xFF0B0B0B, false);
+            g.text(mc.font, label, djX + 5, volY - 3, 0xFF0B0B0B, false);
         }
     }
 

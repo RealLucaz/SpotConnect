@@ -10,7 +10,8 @@ import com.lucaz.spotconnect.ui.SpotifyScreen;
 import com.lucaz.spotconnect.ui.Theme;
 import com.lucaz.spotconnect.ui.widget.CardGrid;
 import com.lucaz.spotconnect.ui.widget.Rows;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.input.MouseButtonEvent;
 
 /**
  * Home: what you played recently, and the things you keep coming back to.
@@ -99,7 +100,7 @@ public class HomeScreen extends SpotifyScreen {
     }
 
     @Override
-    protected void renderContent(GuiGraphics g, int mouseX, int mouseY, float partial) {
+    protected void renderContent(GuiGraphicsExtractor g, int mouseX, int mouseY, float partial) {
         layoutShelves();
         int x = contentX();
         int w = contentW();
@@ -111,12 +112,12 @@ public class HomeScreen extends SpotifyScreen {
         renderShelfTabs(g, mouseX, mouseY, x, tabsY, w);
 
         if (loading) {
-            g.drawString(font, "Loading your Spotify library...", x, contentY() + 20,
+            g.text(font, "Loading your Spotify library...", x, contentY() + 20,
                     Theme.TEXT_FAINT, false);
         }
     }
 
-    private void renderShelfTabs(GuiGraphics g, int mouseX, int mouseY, int x, int y, int w) {
+    private void renderShelfTabs(GuiGraphicsExtractor g, int mouseX, int mouseY, int x, int y, int w) {
         String[] labels = {"Your playlists", "Saved albums", "Artists"};
         Shelf[] values = Shelf.values();
         int tx = x;
@@ -124,7 +125,7 @@ public class HomeScreen extends SpotifyScreen {
             int tw = font.width(labels[i]) + 10;
             boolean active = shelf == values[i];
             boolean hovered = mouseX >= tx && mouseX < tx + tw && mouseY >= y - 2 && mouseY < y + 11;
-            g.drawString(font, labels[i], tx + 5, y,
+            g.text(font, labels[i], tx + 5, y,
                     active ? Theme.TEXT : hovered ? Theme.TEXT_MUTED : Theme.TEXT_FAINT, false);
             if (active) g.fill(tx + 5, y + 10, tx + tw - 5, y + 11, Theme.GREEN);
             tx += tw + 4;
@@ -142,16 +143,18 @@ public class HomeScreen extends SpotifyScreen {
     }
 
     @Override
-    public void render(GuiGraphics g, int mouseX, int mouseY, float partial) {
+    public void extractRenderState(GuiGraphicsExtractor g, int mouseX, int mouseY, float partial) {
         // Draw only the active shelf: hide the others by parking them off-panel.
         panels.clear();
         panels.add(recent);
         panels.add(activeShelf());
-        super.render(g, mouseX, mouseY, partial);
+        super.extractRenderState(g, mouseX, mouseY, partial);
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubled) {
+        double mouseX = event.x(), mouseY = event.y();
+        int button = event.button();
         int shelfH = (contentH() - 34) / 2;
         int tabsY = contentY() + 12 + shelfH + 8;
         if (button == 0 && mouseY >= tabsY - 2 && mouseY < tabsY + 11 && mouseX >= contentX()) {
@@ -166,6 +169,6 @@ public class HomeScreen extends SpotifyScreen {
                 tx += tw + 4;
             }
         }
-        return super.mouseClicked(mouseX, mouseY, button);
+        return super.mouseClicked(event, doubled);
     }
 }

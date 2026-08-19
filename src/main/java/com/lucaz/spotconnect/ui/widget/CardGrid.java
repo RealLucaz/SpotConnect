@@ -5,7 +5,7 @@ import com.lucaz.spotconnect.ui.ArtworkCache;
 import com.lucaz.spotconnect.ui.Theme;
 import com.lucaz.spotconnect.ui.UiText;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -81,10 +81,10 @@ public class CardGrid<T> extends ScrollPanel {
     }
 
     @Override
-    protected void renderContent(GuiGraphics g, int mouseX, int mouseY, int topY, float partial) {
+    protected void renderContent(GuiGraphicsExtractor g, int mouseX, int mouseY, int topY, float partial) {
         Minecraft mc = Minecraft.getInstance();
         if (items.isEmpty()) {
-            g.drawString(mc.font, emptyText, x + 4, y + 8, Theme.TEXT_FAINT, false);
+            g.text(mc.font, emptyText, x + 4, y + 8, Theme.TEXT_FAINT, false);
             return;
         }
         int cols = columns();
@@ -177,12 +177,12 @@ public class CardGrid<T> extends ScrollPanel {
             int textY = cy + art + pad + 2;
             // Two wrapped lines rather than one truncated one.
             for (String line : UiText.wrap(name, textW, 2)) {
-                g.drawString(mc.font, line, cx + pad, textY, Theme.TEXT, false);
+                g.text(mc.font, line, cx + pad, textY, Theme.TEXT, false);
                 textY += 9;
             }
             String sub = subtitle.apply(item);
             if (sub != null && !sub.isBlank() && textY + 8 <= cy + Theme.cardH()) {
-                g.drawString(mc.font, UiText.fit(sub, textW), cx + pad, textY,
+                g.text(mc.font, UiText.fit(sub, textW), cx + pad, textY,
                         Theme.TEXT_MUTED, false);
             }
             if (enter < 0.99f) {

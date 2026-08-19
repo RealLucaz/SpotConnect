@@ -3,7 +3,7 @@ package com.lucaz.spotconnect.ui.widget;
 import com.lucaz.spotconnect.ui.Anim;
 import com.lucaz.spotconnect.ui.Theme;
 import com.lucaz.spotconnect.ui.UiText;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
@@ -29,7 +29,7 @@ public class PillButton extends AbstractButton {
     private IconPainter icon;
 
     public interface IconPainter {
-        void paint(GuiGraphics g, int x, int y, int size, int colour);
+        void paint(GuiGraphicsExtractor g, int x, int y, int size, int colour);
     }
 
     public PillButton(int x, int y, int w, int h, String label, Style style, Runnable action) {
@@ -44,7 +44,7 @@ public class PillButton extends AbstractButton {
     }
 
     @Override
-    protected void renderWidget(@NotNull GuiGraphics g, int mouseX, int mouseY, float partial) {
+    protected void extractContents(@NotNull GuiGraphicsExtractor g, int mouseX, int mouseY, float partial) {
         boolean hovered = isHovered();
         String key = animKey();
         float hv = Anim.hover(key, hovered);
@@ -99,7 +99,7 @@ public class PillButton extends AbstractButton {
         if (icon != null) {
             icon.paint(g, startX, y + (h - 7) / 2, 7, textColour);
         }
-        g.drawString(font, UiText.fit(label, w - iconW - 6), startX + iconW,
+        g.text(font, UiText.fit(label, w - iconW - 6), startX + iconW,
                 y + (h - 8) / 2 + 1, textColour, false);
     }
 
@@ -116,7 +116,7 @@ public class PillButton extends AbstractButton {
     private String animKey;
 
     @Override
-    public void onPress() {
+    public void onPress(net.minecraft.client.input.InputWithModifiers input) {
         Anim.kick(animKey());
         if (action != null) action.run();
     }

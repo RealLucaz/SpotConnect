@@ -5,7 +5,7 @@ import com.lucaz.spotconnect.ui.Theme;
 import com.lucaz.spotconnect.ui.UiText;
 import com.lucaz.spotconnect.ui.widget.Icons;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import com.lucaz.spotconnect.ui.Anim;
 import java.util.function.Supplier;
 
@@ -32,7 +32,7 @@ public abstract class Option {
     protected static ModConfig cfg() { return ModConfig.get(); }
 
     /** Draws the row. The control lives in the right-hand portion. */
-    public void render(GuiGraphics g, int x, int y, int w, boolean hovered) {
+    public void render(GuiGraphicsExtractor g, int x, int y, int w, boolean hovered) {
         Minecraft mc = Minecraft.getInstance();
         // Identity-based: two options may legitimately share a label across
         // sections, and sharing a key made them highlight in unison.
@@ -51,15 +51,15 @@ public abstract class Option {
         // assumed, so a future HEIGHT change cannot silently overlap the rows.
         boolean twoLines = help != null && HEIGHT >= 22;
         int top = y + (HEIGHT - 2 - (twoLines ? 19 : 9)) / 2;
-        g.drawString(mc.font, UiText.fit(label, textW), x + 6, top, Theme.TEXT, false);
+        g.text(mc.font, UiText.fit(label, textW), x + 6, top, Theme.TEXT, false);
         if (twoLines) {
-            g.drawString(mc.font, UiText.fit(help, textW), x + 6, top + 10,
+            g.text(mc.font, UiText.fit(help, textW), x + 6, top + 10,
                     Theme.TEXT_FAINT, false);
         }
         renderControl(g, x + w - controlW - 6, y + 5, controlW, hovered);
     }
 
-    protected abstract void renderControl(GuiGraphics g, int cx, int cy, int cw, boolean hovered);
+    protected abstract void renderControl(GuiGraphicsExtractor g, int cx, int cy, int cw, boolean hovered);
 
     /** @return true if the click changed something (the screen then saves). */
     public abstract boolean click(double mx, double my, int x, int y, int w, int button);
@@ -71,7 +71,7 @@ public abstract class Option {
         public Toggle(String key, String label, String help) { super(key, label, help); }
 
         @Override
-        protected void renderControl(GuiGraphics g, int cx, int cy, int cw, boolean hovered) {
+        protected void renderControl(GuiGraphicsExtractor g, int cx, int cy, int cw, boolean hovered) {
             boolean on = cfg().bool(key);
             int pillW = 34;
             int px = cx + cw - pillW;
@@ -118,7 +118,7 @@ public abstract class Option {
         }
 
         @Override
-        protected void renderControl(GuiGraphics g, int cx, int cy, int cw, boolean hovered) {
+        protected void renderControl(GuiGraphicsExtractor g, int cx, int cy, int cw, boolean hovered) {
             Minecraft mc = Minecraft.getInstance();
             int v = Math.max(min, Math.min(max, cfg().integer(key)));
             float frac = max == min ? 0 : (v - min) / (float) (max - min);
@@ -130,15 +130,15 @@ public abstract class Option {
             int valueW = mc.font.width(d) + 4;
             int barW = cw - 22 - valueW;
             int bx = cx + 11 + valueW;
-            g.drawString(mc.font, d, cx + 11, cy + 3, Theme.TEXT_MUTED, false);
+            g.text(mc.font, d, cx + 11, cy + 3, Theme.TEXT_MUTED, false);
             g.fill(bx, cy + 5, bx + barW, cy + 7, Theme.TRACK_EMPTY);
             g.fill(bx, cy + 5, bx + (int) (barW * frac), cy + 7,
                     hovered ? Theme.GREEN_HOVER : Theme.TRACK_FILL);
             int knob = bx + (int) (barW * frac);
             g.fill(knob - 1, cy + 2, knob + 2, cy + 10, Theme.TEXT);
 
-            g.drawString(mc.font, "-", cx + 2, cy + 3, Theme.TEXT_MUTED, false);
-            g.drawString(mc.font, "+", cx + cw - 7, cy + 3, Theme.TEXT_MUTED, false);
+            g.text(mc.font, "-", cx + 2, cy + 3, Theme.TEXT_MUTED, false);
+            g.text(mc.font, "+", cx + cw - 7, cy + 3, Theme.TEXT_MUTED, false);
         }
 
         @Override
@@ -177,7 +177,7 @@ public abstract class Option {
         }
 
         @Override
-        protected void renderControl(GuiGraphics g, int cx, int cy, int cw, boolean hovered) {
+        protected void renderControl(GuiGraphicsExtractor g, int cx, int cy, int cw, boolean hovered) {
             Minecraft mc = Minecraft.getInstance();
             double v = Math.max(min, Math.min(max, cfg().number(key)));
             float frac = (float) ((v - min) / (max - min));
@@ -186,15 +186,15 @@ public abstract class Option {
             int valueW = mc.font.width(d) + 4;
             int barW = cw - 22 - valueW;
             int bx = cx + 11 + valueW;
-            g.drawString(mc.font, d, cx + 11, cy + 3, Theme.TEXT_MUTED, false);
+            g.text(mc.font, d, cx + 11, cy + 3, Theme.TEXT_MUTED, false);
             g.fill(bx, cy + 5, bx + barW, cy + 7, Theme.TRACK_EMPTY);
             g.fill(bx, cy + 5, bx + (int) (barW * frac), cy + 7,
                     hovered ? Theme.GREEN_HOVER : Theme.TRACK_FILL);
             int knob = bx + (int) (barW * frac);
             g.fill(knob - 1, cy + 2, knob + 2, cy + 10, Theme.TEXT);
 
-            g.drawString(mc.font, "-", cx + 2, cy + 3, Theme.TEXT_MUTED, false);
-            g.drawString(mc.font, "+", cx + cw - 7, cy + 3, Theme.TEXT_MUTED, false);
+            g.text(mc.font, "-", cx + 2, cy + 3, Theme.TEXT_MUTED, false);
+            g.text(mc.font, "+", cx + cw - 7, cy + 3, Theme.TEXT_MUTED, false);
         }
 
         @Override
@@ -226,13 +226,13 @@ public abstract class Option {
         }
 
         @Override
-        protected void renderControl(GuiGraphics g, int cx, int cy, int cw, boolean hovered) {
+        protected void renderControl(GuiGraphicsExtractor g, int cx, int cy, int cw, boolean hovered) {
             Minecraft mc = Minecraft.getInstance();
             int bw = Math.min(cw, mc.font.width(buttonLabel) + 16);
             int bx = cx + cw - bw;
             g.fill(bx, cy, bx + bw, cy + 13, hovered ? Theme.CARD_HOVER : Theme.CHIP);
             g.fill(bx, cy, bx + 1, cy + 13, Theme.GREEN);
-            g.drawString(mc.font, buttonLabel, bx + 8, cy + 3,
+            g.text(mc.font, buttonLabel, bx + 8, cy + 3,
                     hovered ? Theme.TEXT : Theme.TEXT_MUTED, false);
         }
 
@@ -256,10 +256,10 @@ public abstract class Option {
         }
 
         @Override
-        protected void renderControl(GuiGraphics g, int cx, int cy, int cw, boolean hovered) {
+        protected void renderControl(GuiGraphicsExtractor g, int cx, int cy, int cw, boolean hovered) {
             Minecraft mc = Minecraft.getInstance();
             String v = value.get();
-            g.drawString(mc.font, UiText.fit(v, cw), cx + cw - Math.min(cw, mc.font.width(v)),
+            g.text(mc.font, UiText.fit(v, cw), cx + cw - Math.min(cw, mc.font.width(v)),
                     cy + 3, Theme.TEXT_MUTED, false);
         }
 

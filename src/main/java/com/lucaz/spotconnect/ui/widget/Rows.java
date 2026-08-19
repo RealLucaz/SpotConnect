@@ -9,7 +9,7 @@ import com.lucaz.spotconnect.ui.ArtworkCache;
 import com.lucaz.spotconnect.ui.Theme;
 import com.lucaz.spotconnect.ui.UiText;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import com.lucaz.spotconnect.SpotifyService;
 import com.lucaz.spotconnect.config.ModConfig;
 
@@ -44,7 +44,7 @@ public final class Rows {
      *
      * @param nowPlayingUri highlights the row Spotify is currently playing, or null
      */
-    public static void track(GuiGraphics g, Track t, int x, int y, int w, int h,
+    public static void track(GuiGraphicsExtractor g, Track t, int x, int y, int w, int h,
                              boolean hovered, String nowPlayingUri) {
         track(g, t, x, y, w, h, hovered, nowPlayingUri, -1);
     }
@@ -55,7 +55,7 @@ public final class Rows {
      * The number turns into a play triangle on hover - Spotify's own interaction, and
      * the clearest possible hint that a row is clickable without adding a button.
      */
-    public static void track(GuiGraphics g, Track t, int x, int y, int w, int h,
+    public static void track(GuiGraphicsExtractor g, Track t, int x, int y, int w, int h,
                              boolean hovered, String nowPlayingUri, int index) {
         Minecraft mc = Minecraft.getInstance();
         boolean current = nowPlayingUri != null && nowPlayingUri.equals(t.uri());
@@ -89,7 +89,7 @@ public final class Rows {
                 Glyphs.play(g, x + 4, gy, 7, Theme.TEXT);
             } else {
                 String n = String.valueOf(index);
-                g.drawString(mc2.font, n, x + 4 + (9 - mc2.font.width(n)) / 2, gy,
+                g.text(mc2.font, n, x + 4 + (9 - mc2.font.width(n)) / 2, gy,
                         current ? Theme.GREEN : Theme.TEXT_FAINT, false);
             }
         }
@@ -114,7 +114,7 @@ public final class Rows {
 
         boolean two = fitsTwo(h);
         int lt = y + lineTop(h, two);
-        g.drawString(mc.font, UiText.fit(t.name(), textW), textX, lt,
+        g.text(mc.font, UiText.fit(t.name(), textW), textX, lt,
                 current ? Theme.GREEN : Theme.TEXT, false);
 
         // The album is only worth showing when there is genuinely room for both; below
@@ -127,15 +127,15 @@ public final class Rows {
             sub = sub + "  " + t.album();
         }
         if (two) {
-            g.drawString(mc.font, UiText.fit(sub, textW), textX, lt + LINE,
+            g.text(mc.font, UiText.fit(sub, textW), textX, lt + LINE,
                     Theme.TEXT_MUTED, false);
         }
-        g.drawString(mc.font, dur, x + w - durW - 4, y + lineTop(h, false),
+        g.text(mc.font, dur, x + w - durW - 4, y + lineTop(h, false),
                 Theme.TEXT_FAINT, false);
     }
 
     /** Playlist row: cover, name, owner and track count. */
-    public static void playlist(GuiGraphics g, Playlist p, int x, int y, int w, int h,
+    public static void playlist(GuiGraphicsExtractor g, Playlist p, int x, int y, int w, int h,
                                 boolean hovered) {
         Minecraft mc = Minecraft.getInstance();
         float hv = Anim.hover("plrow:" + p.id(), hovered);
@@ -153,17 +153,17 @@ public final class Rows {
         int textW = w - (textX - x) - 5;
         boolean two = fitsTwo(h);
         int lt = y + lineTop(h, two);
-        g.drawString(mc.font, UiText.fit(p.name(), textW), textX, lt, Theme.TEXT, false);
+        g.text(mc.font, UiText.fit(p.name(), textW), textX, lt, Theme.TEXT, false);
         if (two) {
             String sub = (p.owner() == null || p.owner().isBlank() ? "Playlist" : p.owner())
                     + "  " + p.totalTracks() + (p.totalTracks() == 1 ? " track" : " tracks");
-            g.drawString(mc.font, UiText.fit(sub, textW), textX, lt + LINE,
+            g.text(mc.font, UiText.fit(sub, textW), textX, lt + LINE,
                     Theme.TEXT_MUTED, false);
         }
     }
 
     /** Album row: cover, name, artist and release year. */
-    public static void album(GuiGraphics g, Album a, int x, int y, int w, int h,
+    public static void album(GuiGraphicsExtractor g, Album a, int x, int y, int w, int h,
                              boolean hovered) {
         Minecraft mc = Minecraft.getInstance();
         float hv = Anim.hover("albrow:" + a.id(), hovered);
@@ -177,24 +177,24 @@ public final class Rows {
         int textW = w - (textX - x) - 5;
         boolean two = fitsTwo(h);
         int lt = y + lineTop(h, two);
-        g.drawString(mc.font, UiText.fit(a.name(), textW), textX, lt, Theme.TEXT, false);
+        g.text(mc.font, UiText.fit(a.name(), textW), textX, lt, Theme.TEXT, false);
         if (two) {
             String year = a.releaseDate() == null || a.releaseDate().length() < 4
                     ? "" : "  " + a.releaseDate().substring(0, 4);
-            g.drawString(mc.font, UiText.fit(a.artist() + year, textW), textX, lt + LINE,
+            g.text(mc.font, UiText.fit(a.artist() + year, textW), textX, lt + LINE,
                     Theme.TEXT_MUTED, false);
         }
     }
 
     /** Artist row: round-ish avatar and name. */
-    public static void artist(GuiGraphics g, Artist a, int x, int y, int w, int h,
+    public static void artist(GuiGraphicsExtractor g, Artist a, int x, int y, int w, int h,
                               boolean hovered) {
         Minecraft mc = Minecraft.getInstance();
         if (hovered) g.fill(x, y, x + w, y + h - 1, Theme.ROW_HOVER);
         int art = Theme.ART;
         ArtworkCache.draw(g, a.imageUrl(), x + 3, y + (h - art) / 2, art, a.name());
         int textX = x + 3 + art + 4;
-        g.drawString(mc.font, UiText.fit(a.name(), w - (textX - x) - 5), textX,
+        g.text(mc.font, UiText.fit(a.name(), w - (textX - x) - 5), textX,
                 y + lineTop(h, false), Theme.TEXT, false);
     }
 
@@ -202,7 +202,7 @@ public final class Rows {
      * Four bars bouncing out of phase. Driven by wall time rather than a tick counter so
      * it animates identically on every screen without anyone having to plumb a clock in.
      */
-    public static void equaliser(GuiGraphics g, int x, int y, int size) {
+    public static void equaliser(GuiGraphicsExtractor g, int x, int y, int size) {
         // The bars used to dance whenever a row matched the current URI - including while
         // playback was PAUSED, which made a stopped track look like it was still going.
         // They now settle to a flat resting line instead, and ease between the two states
@@ -233,7 +233,7 @@ public final class Rows {
      * A pulsing skeleton shaped like the real content beats "Loading..." in the corner,
      * and it stops the page jumping around when the data lands.
      */
-    public static void skeleton(GuiGraphics g, int x, int y, int w, int rowH, int count) {
+    public static void skeleton(GuiGraphicsExtractor g, int x, int y, int w, int rowH, int count) {
         long t = System.currentTimeMillis();
         for (int i = 0; i < count; i++) {
             int ry = y + i * rowH;
@@ -250,16 +250,16 @@ public final class Rows {
     }
 
     /** Section label with a hairline, used to break long pages into groups. */
-    public static void sectionHeader(GuiGraphics g, String text, int x, int y, int w) {
+    public static void sectionHeader(GuiGraphicsExtractor g, String text, int x, int y, int w) {
         sectionHeader(g, text, x, y, w, Theme.GREEN);
     }
 
     /** Section label with a coloured tick and a hairline. */
-    public static void sectionHeader(GuiGraphics g, String text, int x, int y, int w,
+    public static void sectionHeader(GuiGraphicsExtractor g, String text, int x, int y, int w,
                                      int accent) {
         Minecraft mc = Minecraft.getInstance();
         g.fill(x, y + 1, x + 2, y + 8, accent);
-        g.drawString(mc.font, text, x + 6, y, Theme.TEXT, false);
+        g.text(mc.font, text, x + 6, y, Theme.TEXT, false);
         // The rule fades out to the right instead of ending abruptly.
         int labelEnd = x + 10 + mc.font.width(text);
         g.fillGradient(labelEnd, y + 4, x + w, y + 5,

@@ -6,7 +6,7 @@ import com.lucaz.spotconnect.ui.SpotifyScreen;
 import com.lucaz.spotconnect.ui.Theme;
 import com.lucaz.spotconnect.ui.widget.ListPanel;
 import com.lucaz.spotconnect.ui.widget.Rows;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
 
@@ -74,7 +74,7 @@ public class QueueScreen extends SpotifyScreen {
     }
 
     @Override
-    protected void renderContent(GuiGraphics g, int mouseX, int mouseY, float partial) {
+    protected void renderContent(GuiGraphicsExtractor g, int mouseX, int mouseY, float partial) {
         int x = contentX();
         int w = contentW();
         int y = contentY();
@@ -85,7 +85,7 @@ public class QueueScreen extends SpotifyScreen {
         if (current != null) {
             Rows.track(g, current, x, y + 14, w, Theme.ROW_H, false, current.uri());
         } else {
-            g.drawString(font, "Nothing playing", x, y + 18, Theme.TEXT_FAINT, false);
+            g.text(font, "Nothing playing", x, y + 18, Theme.TEXT_FAINT, false);
         }
 
         Rows.sectionHeader(g, loading ? "Next up  (refreshing...)" : "Next up", x,

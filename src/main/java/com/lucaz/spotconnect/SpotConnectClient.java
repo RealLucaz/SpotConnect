@@ -9,9 +9,10 @@ import com.mojang.logging.LogUtils;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
-import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
+import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
+import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
 import net.minecraft.client.KeyMapping;
+import net.minecraft.resources.Identifier;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
@@ -27,7 +28,8 @@ import com.lucaz.spotconnect.ui.SpotifyScreen;
 public final class SpotConnectClient implements ClientModInitializer {
 
     private static final Logger LOGGER = LogUtils.getLogger();
-    private static final String CATEGORY = "key.categories.spotconnect";
+    private static final KeyMapping.Category CATEGORY =
+            KeyMapping.Category.register(Identifier.fromNamespaceAndPath("spotconnect", "main"));
 
     public static final KeyMapping OPEN_SPOTIFY = bind("key.spotconnect.open", GLFW.GLFW_KEY_M);
     /** Transport shortcuts that work without opening the UI. */
@@ -41,14 +43,15 @@ public final class SpotConnectClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
-        KeyBindingHelper.registerKeyBinding(OPEN_SPOTIFY);
-        KeyBindingHelper.registerKeyBinding(PLAY_PAUSE);
-        KeyBindingHelper.registerKeyBinding(NEXT_TRACK);
-        KeyBindingHelper.registerKeyBinding(PREV_TRACK);
+        KeyMappingHelper.registerKeyMapping(OPEN_SPOTIFY);
+        KeyMappingHelper.registerKeyMapping(PLAY_PAUSE);
+        KeyMappingHelper.registerKeyMapping(NEXT_TRACK);
+        KeyMappingHelper.registerKeyMapping(PREV_TRACK);
 
         ClientTickEvents.END_CLIENT_TICK.register(this::onTick);
-        HudRenderCallback.EVENT.register((g, tickDelta) ->
-                MiniPlayerHud.render(g, Minecraft.getInstance()));
+        HudElementRegistry.addLast(
+                Identifier.fromNamespaceAndPath("spotconnect", "mini-player"),
+                (g, tickDelta) -> MiniPlayerHud.render(g, Minecraft.getInstance()));
 
         // Bring a previously authorized session back up in the background, so pressing M
         // lands in the library instead of the first-run pitch. Costs nothing on a machine

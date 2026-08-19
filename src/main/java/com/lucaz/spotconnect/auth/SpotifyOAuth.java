@@ -5,7 +5,7 @@ import com.lucaz.spotconnect.util.Json;
 import com.mojang.logging.LogUtils;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import org.slf4j.Logger;
 
 import java.awt.Desktop;

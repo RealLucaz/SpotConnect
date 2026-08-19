@@ -4,8 +4,9 @@ import com.lucaz.spotconnect.spotify.SpotifyModels.PlaybackState;
 import com.lucaz.spotconnect.ui.SpotifyScreen;
 import com.lucaz.spotconnect.ui.UiText;
 import com.lucaz.spotconnect.ui.widget.DjOrb;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import com.lucaz.spotconnect.config.ModConfig;
+import net.minecraft.client.input.MouseButtonEvent;
 
 /**
  * DJ X gets its own page: the orb on deep blue, tap to start.
@@ -48,7 +49,7 @@ public class DjScreen extends SpotifyScreen {
     }
 
     @Override
-    protected void renderContent(GuiGraphics g, int mouseX, int mouseY, float partial) {
+    protected void renderContent(GuiGraphicsExtractor g, int mouseX, int mouseY, float partial) {
         int x = contentX();
         int y = contentY();
         int w = contentW();
@@ -84,7 +85,7 @@ public class DjScreen extends SpotifyScreen {
         // Label inside the ring: state when ready, countdown when not.
         String inner = !ready ? (Math.max(1, cooldown / 1000) + "s")
                 : live ? "ON AIR" : "TAP";
-        g.drawString(font, inner, orbX - font.width(inner) / 2, orbY - 4,
+        g.text(font, inner, orbX - font.width(inner) / 2, orbY - 4,
                 !ready ? 0xFFFFC864 : live ? DjOrb.GREEN_LIGHT : 0xFFBFD8F5, false);
 
         // Caption below the orb, clamped so the three stacked lines always fit inside
@@ -92,7 +93,7 @@ public class DjScreen extends SpotifyScreen {
         int captionBlock = 36;
         int cy = Math.min(orbY + orbR + 10, y + h - captionBlock);
         String title = live ? "DJ is playing" : "Start your DJ";
-        g.drawString(font, title, orbX - font.width(title) / 2, cy, 0xFFFFFFFF, false);
+        g.text(font, title, orbX - font.width(title) / 2, cy, 0xFFFFFFFF, false);
 
         PlaybackState st = service.playback();
         String sub;
@@ -101,7 +102,7 @@ public class DjScreen extends SpotifyScreen {
         else sub = "Click the orb to play DJ on the Minecraft device";
         int subW = Math.max(80, w - 20);
         String fitted = UiText.fit(sub, subW);
-        g.drawString(font, fitted, orbX - font.width(fitted) / 2, cy + 12,
+        g.text(font, fitted, orbX - font.width(fitted) / 2, cy + 12,
                 0xFFBFD8F5, false);
 
         if (live) {
@@ -109,17 +110,19 @@ public class DjScreen extends SpotifyScreen {
             String hint = ready
                     ? "Click again to have DJ switch it up  -  " + left + " left this minute"
                     : "Spotify limits how often we can skip";
-            g.drawString(font, hint, orbX - font.width(hint) / 2, cy + 24,
+            g.text(font, hint, orbX - font.width(hint) / 2, cy + 24,
                     ready ? 0x99FFFFFF : 0xCCFFC864, false);
         } else {
             String hint = "Premium only, and not available in every country";
-            g.drawString(font, UiText.fit(hint, subW),
+            g.text(font, UiText.fit(hint, subW),
                     orbX - font.width(UiText.fit(hint, subW)) / 2, cy + 24, 0x77FFFFFF, false);
         }
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubled) {
+        double mouseX = event.x(), mouseY = event.y();
+        int button = event.button();
         if (button == 0 && orbR > 0 && DjOrb.hit(mouseX, mouseY, orbX, orbY, orbR)) {
             // Same control the real DJ button gives you: start it, or move it along.
             if (service.isDjActive()) {
@@ -136,6 +139,6 @@ public class DjScreen extends SpotifyScreen {
             }
             return true;
         }
-        return super.mouseClicked(mouseX, mouseY, button);
+        return super.mouseClicked(event, doubled);
     }
 }
