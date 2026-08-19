@@ -29,7 +29,7 @@ public final class Json {
             j.ws();
             return j.eof() ? null : j.value();
         } catch (Exception e) {
-            // Deliberately swallowed. Callers all treat null as "no data", which is the
+            // Swallowed on purpose. Callers all treat null as "no data", which is the
             // correct reading of a response we could not understand.
             return null;
         }

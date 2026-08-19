@@ -67,7 +67,7 @@ public final class SpotifyConfig {
     /**
      * Where the in-game feedback button goes.
      *
-     * Deliberately not a server of our own. Feedback opens a pre-filled issue in the
+     * No server of our own. Feedback opens a pre-filled issue in the
      * browser, so nothing is transmitted from the game, there is no endpoint to secure
      * and no data to look after. The user sees the report and presses submit themselves.
      */

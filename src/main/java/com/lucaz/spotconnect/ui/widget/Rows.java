@@ -99,7 +99,7 @@ public final class Rows {
         ArtworkCache.draw(g, t.imageUrl(), x + 3 + gutter, ay, art);
 
         // The playing row gets a little dancing equaliser over its cover - the clearest
-        // possible "this is the one", and far more legible than a colour change alone.
+        // possible "this is the one", and easier to spot than a colour change alone.
         if (current) {
             g.fill(x + 3 + gutter, ay, x + 3 + gutter + art, ay + art, 0x99000000);
             equaliser(g, x + 3 + gutter + (art - 9) / 2, ay + (art - 9) / 2, 9);

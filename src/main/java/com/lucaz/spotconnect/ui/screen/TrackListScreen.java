@@ -130,7 +130,7 @@ public abstract class TrackListScreen extends SpotifyScreen {
     /**
      * Header wash colour.
      *
-     * Taken from the cover art itself once it has decoded, which is what makes each
+     * Taken from the cover art itself once it has decoded, so each
      * page feel like it belongs to its record rather than to a fixed palette. Falls back
      * to the name-hashed accent until the image lands, so the header never flashes.
      */

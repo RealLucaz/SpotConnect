@@ -53,7 +53,7 @@ public final class Tabs {
         }
 
         // The indicator is drawn ONCE, at an eased position, rather than under whichever
-        // tab happens to be active this frame - that is what makes it travel.
+        // tab happens to be active this frame. That is what lets it travel.
         float ix = Anim.glide(key + ":ind.x", activeX);
         float iw = Anim.glide(key + ":ind.w", activeW);
         int bx = Math.round(ix) + 6;

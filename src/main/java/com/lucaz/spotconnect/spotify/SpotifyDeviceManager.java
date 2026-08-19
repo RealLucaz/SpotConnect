@@ -49,7 +49,7 @@ public final class SpotifyDeviceManager implements Runnable {
     /**
      * Base cadence. This is a SECOND always-on poller alongside the playback poll; at a
      * flat 2s it alone spent 1,800 requests/hour. Once a device is confirmed there is
-     * little reason to re-check that often, so a ready device is watched far more slowly.
+     * little reason to re-check that often, so a ready device is polled less.
      */
     static final long POLL_MS       = 2000;
     static final long POLL_MS_READY = 10_000;
@@ -179,7 +179,7 @@ public final class SpotifyDeviceManager implements Runnable {
                 // killing or relaunching would reset their login.
                 //
                 // CRITICAL: only the LIFECYCLE is suspended. Device DETECTION below always
-                // runs - that is precisely how we notice the sign-in succeeded.
+                // runs - that is how we notice the sign-in succeeded.
                 if (!host.loginInProgress() && !host.loginCancelled()
                         && !browser.isShuttingDown() && !tracker.isRunning()) {
                     if (state != State.DEVICE_LOST) {

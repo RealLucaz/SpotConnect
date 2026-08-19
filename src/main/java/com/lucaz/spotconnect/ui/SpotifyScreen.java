@@ -99,7 +99,7 @@ public abstract class SpotifyScreen extends Screen {
     /**
      * Everything that goes behind the widgets.
      *
-     * Screen.render() calls this before drawing the widget list, which is exactly the hook
+     * Screen.render() calls this before drawing the widget list, so it is the hook
      * we want - our chrome lands under the buttons and vanilla's blur+scrim never runs.
      *
      * renderables is private in 1.21.1 so we can't draw the widgets ourselves anyway.

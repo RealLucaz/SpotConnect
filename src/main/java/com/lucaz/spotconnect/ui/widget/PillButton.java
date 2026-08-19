@@ -9,6 +9,7 @@ import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.input.InputWithModifiers;
 
 /**
  * A button that belongs to this interface rather than to vanilla.
@@ -116,7 +117,7 @@ public class PillButton extends AbstractButton {
     private String animKey;
 
     @Override
-    public void onPress(net.minecraft.client.input.InputWithModifiers input) {
+    public void onPress(InputWithModifiers input) {
         Anim.kick(animKey());
         if (action != null) action.run();
     }

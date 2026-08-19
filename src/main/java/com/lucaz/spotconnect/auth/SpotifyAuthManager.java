@@ -13,7 +13,7 @@ import org.slf4j.Logger;
  *
  * Careful, there are two different things called "auth" here and both live in this class:
  * the OAuth/PKCE authorization that lets us call the Web API (done once, then the refresh
- * token handles it), and the Chrome profile's own Spotify session, which is what makes it
+ * token handles it), and the Chrome profile's own Spotify session, which is why it
  * show up as a Connect device. Only the second one needs a visible window.
  *
  * We never read or store the password - the window is moved and restyled, nothing more.

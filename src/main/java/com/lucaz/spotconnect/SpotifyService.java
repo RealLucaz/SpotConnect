@@ -298,7 +298,7 @@ public final class SpotifyService implements SpotifyDeviceManager.Host, SpotifyA
                 }
                 // Start hiding BEFORE we know the PID. awaitBrowserProcess needs a
                 // ~900ms CIM scan to find the browser process, and the window exists well
-                // before that finishes - which is exactly the gap where a taskbar button
+                // before that finishes - that gap is where a taskbar button
                 // was visible. The watcher polls at 100ms and wins that race.
                 WinHelper.watchAndHide();
                 // Arm before the window exists, so even a crash during startup is covered.
