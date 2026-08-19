@@ -183,6 +183,19 @@ public class SearchScreen extends SpotifyScreen {
         }
     }
 
+    //? if >=1.21.9 {
+    /*@Override
+    public boolean mouseClicked(net.minecraft.client.input.MouseButtonEvent event, boolean doubled) {
+        double mouseX = event.x(), mouseY = event.y();
+        int button = event.button();
+        int tabsY = contentY() + 22;
+        if (button == 0 && mouseY >= tabsY - 2 && mouseY < tabsY + 11 && mouseX >= contentX()) {
+            int idx = Tabs.hit(TAB_LABELS, contentX(), tabsY, mouseX, mouseY);
+            if (idx >= 0) { tab = Tab.values()[idx]; return true; }
+        }
+        return super.mouseClicked(event, doubled);
+    }
+    *///?} else {
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         int tabsY = contentY() + 22;
@@ -192,7 +205,21 @@ public class SearchScreen extends SpotifyScreen {
         }
         return super.mouseClicked(mouseX, mouseY, button);
     }
+    //?}
 
+    //? if >=1.21.9 {
+    /*@Override
+    public boolean keyPressed(net.minecraft.client.input.KeyEvent event) {
+        int keyCode = event.key(), scanCode = event.scancode(), modifiers = event.modifiers();
+        // Enter searches immediately instead of waiting out the debounce.
+        if ((keyCode == 257 || keyCode == 335) && queryBox != null && queryBox.isFocused()) {
+            debounce = -1;
+            runSearch(pendingQuery);
+            return true;
+        }
+        return super.keyPressed(event);
+    }
+    *///?} else {
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         // Enter searches immediately instead of waiting out the debounce.
@@ -203,6 +230,7 @@ public class SearchScreen extends SpotifyScreen {
         }
         return super.keyPressed(keyCode, scanCode, modifiers);
     }
+    //?}
 
     @Override
     protected boolean isTypingSomewhere() {

@@ -150,6 +150,28 @@ public class HomeScreen extends SpotifyScreen {
         super.render(g, mouseX, mouseY, partial);
     }
 
+    //? if >=1.21.9 {
+    /*@Override
+    public boolean mouseClicked(net.minecraft.client.input.MouseButtonEvent event, boolean doubled) {
+        double mouseX = event.x(), mouseY = event.y();
+        int button = event.button();
+        int shelfH = (contentH() - 34) / 2;
+        int tabsY = contentY() + 12 + shelfH + 8;
+        if (button == 0 && mouseY >= tabsY - 2 && mouseY < tabsY + 11 && mouseX >= contentX()) {
+            String[] labels = {"Your playlists", "Saved albums", "Artists"};
+            int tx = contentX();
+            for (int i = 0; i < labels.length; i++) {
+                int tw = font.width(labels[i]) + 10;
+                if (mouseX >= tx && mouseX < tx + tw) {
+                    shelf = Shelf.values()[i];
+                    return true;
+                }
+                tx += tw + 4;
+            }
+        }
+        return super.mouseClicked(event, doubled);
+    }
+    *///?} else {
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         int shelfH = (contentH() - 34) / 2;
@@ -168,4 +190,5 @@ public class HomeScreen extends SpotifyScreen {
         }
         return super.mouseClicked(mouseX, mouseY, button);
     }
+    //?}
 }

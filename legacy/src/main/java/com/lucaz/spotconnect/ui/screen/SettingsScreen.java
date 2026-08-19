@@ -267,6 +267,46 @@ public class SettingsScreen extends SpotifyScreen {
                 Theme.alpha(Theme.DIVIDER, 0.8f));
     }
 
+    //? if >=1.21.9 {
+    /*@Override
+    public boolean mouseClicked(net.minecraft.client.input.MouseButtonEvent event, boolean doubled) {
+        double mouseX = event.x(), mouseY = event.y();
+        int button = event.button();
+        int x = contentX();
+        int y = contentY() + 2;
+
+        // Category rail
+        if (mouseX >= x && mouseX < x + CAT_W) {
+            int index = (int) ((mouseY - y) / CAT_ROW);
+            if (index >= 0 && index < categories.size()) {
+                selected = index;
+                list.setItems(categories.get(selected).options());
+                return true;
+            }
+            int resetY = y + categories.size() * CAT_ROW + 6;
+            if (mouseY >= resetY && mouseY < resetY + 12) {
+                cfg().resetSection(categories.get(selected).prefix());
+                service.setStatus(categories.get(selected).name() + " settings reset.");
+                return true;
+            }
+        }
+
+        // Option rows: work out which row was hit, then let the option handle the x-axis.
+        if (list != null && list.isOver(mouseX, mouseY)) {
+            int row = (int) ((mouseY - list.y() + list.scrollOffset()) / Option.HEIGHT);
+            List<Option> options = categories.get(selected).options();
+            if (row >= 0 && row < options.size()) {
+                int rowY = list.y() - list.scrollOffset() + row * Option.HEIGHT;
+                if (options.get(row).click(mouseX, mouseY, list.x(), rowY,
+                        list.width() - 7, button)) {
+                    cfg().save();
+                    return true;
+                }
+            }
+        }
+        return super.mouseClicked(event, doubled);
+    }
+    *///?} else {
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         int x = contentX();
@@ -303,4 +343,5 @@ public class SettingsScreen extends SpotifyScreen {
         }
         return super.mouseClicked(mouseX, mouseY, button);
     }
+    //?}
 }

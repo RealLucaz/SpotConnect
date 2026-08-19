@@ -27,7 +27,13 @@ import com.lucaz.spotconnect.ui.SpotifyScreen;
 public final class SpotConnectClient implements ClientModInitializer {
 
     private static final Logger LOGGER = LogUtils.getLogger();
+    //? if >=1.21.9 {
+    /*private static final net.minecraft.client.KeyMapping.Category CATEGORY =
+            net.minecraft.client.KeyMapping.Category.register(
+                    modId());
+    *///?} else {
     private static final String CATEGORY = "key.categories.spotconnect";
+    //?}
 
     public static final KeyMapping OPEN_SPOTIFY = bind("key.spotconnect.open", GLFW.GLFW_KEY_M);
     /** Transport shortcuts that work without opening the UI. */
@@ -207,4 +213,15 @@ public final class SpotConnectClient implements ClientModInitializer {
         Screen resume = alwaysHome ? null : SpotifyScreen.lastScreen();
         client.setScreen(resume != null ? resume : new HomeScreen());
     }
+
+    // Only needed from 1.21.9, where key categories stopped being plain strings.
+    //? if >=1.21.11 {
+    /*private static net.minecraft.resources.Identifier modId() {
+        return net.minecraft.resources.Identifier.fromNamespaceAndPath("spotconnect", "main");
+    }
+    *///?} elif >=1.21.9 {
+    /*private static net.minecraft.resources.ResourceLocation modId() {
+        return net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("spotconnect", "main");
+    }
+    *///?}
 }

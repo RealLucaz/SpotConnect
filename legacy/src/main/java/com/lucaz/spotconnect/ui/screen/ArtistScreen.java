@@ -152,6 +152,19 @@ public class ArtistScreen extends SpotifyScreen {
         }
     }
 
+    //? if >=1.21.9 {
+    /*@Override
+    public boolean mouseClicked(net.minecraft.client.input.MouseButtonEvent event, boolean doubled) {
+        double mouseX = event.x(), mouseY = event.y();
+        int button = event.button();
+        int tabsY = contentY() + HEADER_H + 4;
+        if (button == 0 && mouseY >= tabsY - 2 && mouseY < tabsY + 11 && mouseX >= contentX()) {
+            int idx = Tabs.hit(TAB_LABELS, contentX(), tabsY, mouseX, mouseY);
+            if (idx >= 0) { tab = Tab.values()[idx]; return true; }
+        }
+        return super.mouseClicked(event, doubled);
+    }
+    *///?} else {
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         int tabsY = contentY() + HEADER_H + 4;
@@ -161,4 +174,5 @@ public class ArtistScreen extends SpotifyScreen {
         }
         return super.mouseClicked(mouseX, mouseY, button);
     }
+    //?}
 }

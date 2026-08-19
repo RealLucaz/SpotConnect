@@ -117,6 +117,23 @@ public class HudPositionScreen extends Screen {
         super.render(g, mouseX, mouseY, partial);
     }
 
+    //? if >=1.21.9 {
+    /*@Override
+    public boolean mouseClicked(net.minecraft.client.input.MouseButtonEvent event, boolean doubled) {
+        double mouseX = event.x(), mouseY = event.y();
+        int button = event.button();
+        int w = MiniPlayerHud.width();
+        int h = MiniPlayerHud.height();
+        if (button == 0 && mouseX >= cardX && mouseX < cardX + w
+                && mouseY >= cardY && mouseY < cardY + h) {
+            dragging = true;
+            grabDx = (int) mouseX - cardX;
+            grabDy = (int) mouseY - cardY;
+            return true;
+        }
+        return super.mouseClicked(event, doubled);
+    }
+    *///?} else {
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         int w = MiniPlayerHud.width();
@@ -130,7 +147,27 @@ public class HudPositionScreen extends Screen {
         }
         return super.mouseClicked(mouseX, mouseY, button);
     }
+    //?}
 
+    //? if >=1.21.9 {
+    /*@Override
+    public boolean mouseDragged(net.minecraft.client.input.MouseButtonEvent event, double dx, double dy) {
+        double mouseX = event.x(), mouseY = event.y();
+        int button = event.button();
+        if (!dragging) return super.mouseDragged(event, dx, dy);
+        int w = MiniPlayerHud.width();
+        int h = MiniPlayerHud.height();
+        cardX = clamp((int) mouseX - grabDx, 0, width - w);
+        cardY = clamp((int) mouseY - grabDy, 0, height - h);
+
+        // Snap to edges.
+        if (cardX < SNAP) cardX = 0;
+        if (cardY < SNAP) cardY = 0;
+        if (cardX > width - w - SNAP) cardX = width - w;
+        if (cardY > height - h - SNAP) cardY = height - h;
+        return true;
+    }
+    *///?} else {
     @Override
     public boolean mouseDragged(double mouseX, double mouseY, int button, double dx, double dy) {
         if (!dragging) return super.mouseDragged(mouseX, mouseY, button, dx, dy);
@@ -146,7 +183,21 @@ public class HudPositionScreen extends Screen {
         if (cardY > height - h - SNAP) cardY = height - h;
         return true;
     }
+    //?}
 
+    //? if >=1.21.9 {
+    /*@Override
+    public boolean mouseReleased(net.minecraft.client.input.MouseButtonEvent event) {
+        double mouseX = event.x(), mouseY = event.y();
+        int button = event.button();
+        if (dragging) {
+            dragging = false;
+            save();
+            return true;
+        }
+        return super.mouseReleased(event);
+    }
+    *///?} else {
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
         if (dragging) {
@@ -156,6 +207,7 @@ public class HudPositionScreen extends Screen {
         }
         return super.mouseReleased(mouseX, mouseY, button);
     }
+    //?}
 
     private void save() {
         ModConfig cfg = ModConfig.get();

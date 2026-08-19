@@ -201,6 +201,15 @@ public abstract class SpotifyScreen extends Screen {
     }
 
     /** Highlights the seam and draws grab handles when the pointer is near it. */
+    /** The GLFW handle. getWindow() became handle() in 1.21.9. */
+    private long windowHandle() {
+        //? if >=1.21.9 {
+        /*return minecraft.getWindow().handle();
+        *///?} else {
+        return minecraft.getWindow().getWindow();
+        //?}
+    }
+
     private void renderSidebarGrip(GuiGraphics g, int mouseX, int mouseY) {
         int edge = Theme.sidebarWidth();
         boolean hot = resizingSidebar || overSidebarGrip(mouseX, mouseY);
@@ -231,7 +240,7 @@ public abstract class SpotifyScreen extends Screen {
         if (want == cursorIsResize) return;
         cursorIsResize = want;
         if (minecraft == null) return;
-        long window = minecraft.getWindow().getWindow();
+        long window = windowHandle();
         if (want) {
             if (resizeCursor == 0L) {
                 resizeCursor = org.lwjgl.glfw.GLFW.glfwCreateStandardCursor(
@@ -250,7 +259,7 @@ public abstract class SpotifyScreen extends Screen {
     public void removed() {
         // Never leave the resize cursor applied once the screen is gone.
         if (cursorIsResize && minecraft != null) {
-            org.lwjgl.glfw.GLFW.glfwSetCursor(minecraft.getWindow().getWindow(), 0L);
+            org.lwjgl.glfw.GLFW.glfwSetCursor(windowHandle(), 0L);
             cursorIsResize = false;
         }
         super.removed();
@@ -335,6 +344,31 @@ public abstract class SpotifyScreen extends Screen {
                 && mx >= edge - GRIP && mx <= edge + GRIP;
     }
 
+    //? if >=1.21.9 {
+    /*@Override
+    public boolean mouseClicked(net.minecraft.client.input.MouseButtonEvent event, boolean doubled) {
+        double mouseX = event.x(), mouseY = event.y();
+        int button = event.button();
+        if (playerBar.isOver(mouseX, mouseY)) {
+            return playerBar.mouseClicked(mouseX, mouseY, button);
+        }
+        if (button == 0 && overSidebarGrip(mouseX, mouseY)) {
+            resizingSidebar = true;
+            return true;
+        }
+        if (overBack(mouseX, mouseY) && button == 0) {
+            back();
+            return true;
+        }
+        if (mouseX < Theme.sidebarWidth()) {
+            return sidebar.mouseClicked(mouseX, mouseY, button, this);
+        }
+        for (ScrollPanel p : panels) {
+            if (p.mouseClicked(mouseX, mouseY, button)) return true;
+        }
+        return super.mouseClicked(event, doubled);
+    }
+    *///?} else {
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (playerBar.isOver(mouseX, mouseY)) {
@@ -356,7 +390,27 @@ public abstract class SpotifyScreen extends Screen {
         }
         return super.mouseClicked(mouseX, mouseY, button);
     }
+    //?}
 
+    //? if >=1.21.9 {
+    /*@Override
+    public boolean mouseDragged(net.minecraft.client.input.MouseButtonEvent event, double dx, double dy) {
+        double mouseX = event.x(), mouseY = event.y();
+        int button = event.button();
+        if (resizingSidebar && button == 0) {
+            ModConfig.get().set(ModConfig.Defaults.UI_SIDEBAR_WIDTH,
+                    (int) Math.max(Theme.SIDEBAR_W_MIN, Math.min(Theme.SIDEBAR_W_MAX, mouseX)));
+            // Panels are laid out from contentX(), so re-run the page layout live.
+            rebuildLayout();
+            return true;
+        }
+        if (playerBar.mouseDragged(mouseX, mouseY, button)) return true;
+        for (ScrollPanel p : panels) {
+            if (p.mouseDragged(mouseX, mouseY, button)) return true;
+        }
+        return super.mouseDragged(event, dx, dy);
+    }
+    *///?} else {
     @Override
     public boolean mouseDragged(double mouseX, double mouseY, int button, double dx, double dy) {
         if (resizingSidebar && button == 0) {
@@ -372,6 +426,7 @@ public abstract class SpotifyScreen extends Screen {
         }
         return super.mouseDragged(mouseX, mouseY, button, dx, dy);
     }
+    //?}
 
     /** Re-runs the page's own layout after the rail is resized. */
     private void rebuildLayout() {
@@ -382,6 +437,21 @@ public abstract class SpotifyScreen extends Screen {
         initContent();
     }
 
+    //? if >=1.21.9 {
+    /*@Override
+    public boolean mouseReleased(net.minecraft.client.input.MouseButtonEvent event) {
+        double mouseX = event.x(), mouseY = event.y();
+        int button = event.button();
+        if (resizingSidebar) {
+            resizingSidebar = false;
+            ModConfig.get().save();   // persist the new width
+            return true;
+        }
+        playerBar.mouseReleased(mouseX, mouseY, button);
+        for (ScrollPanel p : panels) p.mouseReleased();
+        return super.mouseReleased(event);
+    }
+    *///?} else {
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
         if (resizingSidebar) {
@@ -393,6 +463,7 @@ public abstract class SpotifyScreen extends Screen {
         for (ScrollPanel p : panels) p.mouseReleased();
         return super.mouseReleased(mouseX, mouseY, button);
     }
+    //?}
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double dx, double dy) {
@@ -403,6 +474,50 @@ public abstract class SpotifyScreen extends Screen {
         return super.mouseScrolled(mouseX, mouseY, dx, dy);
     }
 
+    //? if >=1.21.9 {
+    /*@Override
+    public boolean keyPressed(net.minecraft.client.input.KeyEvent event) {
+        int keyCode = event.key(), scanCode = event.scancode(), modifiers = event.modifiers();
+        if (keyCode == 259 && parent != null && !isTypingSomewhere()) {   // Backspace
+            back();
+            return true;
+        }
+        // Transport shortcuts, skipped while a text field has focus so typing an arrow
+        // inside the search box never seeks the track.
+        if (!isTypingSomewhere() && service.isConnected()) {
+            var cfg = ModConfig.get();
+            var keys = ModConfig.Defaults.class;
+            int seekStep = cfg.integer(ModConfig.Defaults.PB_SEEK_STEP);
+            int volStep = cfg.integer(ModConfig.Defaults.PB_VOLUME_STEP);
+            switch (keyCode) {
+                case 262 -> {   // right arrow
+                    service.seek(service.progressMs() + seekStep * 1000L);
+                    return true;
+                }
+                case 263 -> {   // left arrow
+                    service.seek(Math.max(0, service.progressMs() - seekStep * 1000L));
+                    return true;
+                }
+                case 265 -> {   // up arrow
+                    service.setVolume(service.volumeOptimistic() + volStep);
+                    service.commitVolume();
+                    return true;
+                }
+                case 264 -> {   // down arrow
+                    service.setVolume(service.volumeOptimistic() - volStep);
+                    service.commitVolume();
+                    return true;
+                }
+                case 32 -> {    // space
+                    service.togglePlayPause();
+                    return true;
+                }
+                default -> { }
+            }
+        }
+        return super.keyPressed(event);
+    }
+    *///?} else {
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         if (keyCode == 259 && parent != null && !isTypingSomewhere()) {   // Backspace
@@ -444,6 +559,7 @@ public abstract class SpotifyScreen extends Screen {
         }
         return super.keyPressed(keyCode, scanCode, modifiers);
     }
+    //?}
 
     protected boolean isTypingSomewhere() { return false; }
 

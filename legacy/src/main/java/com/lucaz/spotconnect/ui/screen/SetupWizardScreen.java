@@ -6,7 +6,6 @@ import com.lucaz.spotconnect.config.ModConfig;
 import com.lucaz.spotconnect.ui.Anim;
 import com.lucaz.spotconnect.ui.Theme;
 import com.lucaz.spotconnect.ui.UiText;
-import net.minecraft.Util;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
@@ -255,7 +254,7 @@ public class SetupWizardScreen extends Screen {
 
     private void openUrl(String url) {
         try {
-            Util.getPlatform().openUri(new URI(url));
+            openInBrowser(new URI(url));
             flash("Opened in your browser");
         } catch (Exception e) {
             flash("Could not open a browser - type the address in yourself");
@@ -456,4 +455,14 @@ public class SetupWizardScreen extends Screen {
 
     @Override
     public boolean isPauseScreen() { return false; }
+
+
+    /** Util moved from net.minecraft to net.minecraft.util in 1.21.11. */
+    private static void openInBrowser(java.net.URI target) {
+        //? if >=1.21.11 {
+        /*net.minecraft.util.Util.getPlatform().openUri(target);
+        *///?} else {
+        net.minecraft.Util.getPlatform().openUri(target);
+        //?}
+    }
 }

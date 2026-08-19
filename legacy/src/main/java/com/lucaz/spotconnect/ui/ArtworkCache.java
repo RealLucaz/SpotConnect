@@ -5,7 +5,11 @@ import com.mojang.logging.LogUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.texture.DynamicTexture;
+//? if >=1.21.11 {
+/*import net.minecraft.resources.Identifier;
+*///?} else {
 import net.minecraft.resources.ResourceLocation;
+//?}
 import org.slf4j.Logger;
 
 import javax.imageio.ImageIO;
@@ -61,7 +65,11 @@ public final class ArtworkCache {
         ImageIO.setUseCache(false);
     }
 
+    //? if >=1.21.11 {
+    /*private record Entry(Identifier location, int width, int height, int accent) { }
+    *///?} else {
     private record Entry(ResourceLocation location, int width, int height, int accent) { }
+    //?}
 
     /**
      * Dominant colour per artwork URL, so pages can be tinted by the music itself.
@@ -291,7 +299,9 @@ public final class ArtworkCache {
             }
             String path = "art/" + Integer.toHexString(url.hashCode() & 0x7FFFFFFF)
                     + "_" + w + "x" + h;
-            //? if >=1.21 {
+            //? if >=1.21.11 {
+            /*Identifier loc = Identifier.fromNamespaceAndPath("spotconnect", path);
+            *///?} elif >=1.21 {
             ResourceLocation loc = ResourceLocation.fromNamespaceAndPath("spotconnect", path);
             //?} else {
             /*ResourceLocation loc = new ResourceLocation("spotconnect", path);

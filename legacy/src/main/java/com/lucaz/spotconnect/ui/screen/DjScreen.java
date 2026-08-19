@@ -118,6 +118,30 @@ public class DjScreen extends SpotifyScreen {
         }
     }
 
+    //? if >=1.21.9 {
+    /*@Override
+    public boolean mouseClicked(net.minecraft.client.input.MouseButtonEvent event, boolean doubled) {
+        double mouseX = event.x(), mouseY = event.y();
+        int button = event.button();
+        if (button == 0 && orbR > 0 && DjOrb.hit(mouseX, mouseY, orbX, orbY, orbR)) {
+            // Same control the real DJ button gives you: start it, or move it along.
+            if (service.isDjActive()) {
+                service.djChangeItUp();
+            } else if (ModConfig.get()
+                    .bool(ModConfig.Defaults.PB_CONFIRM_DJ)
+                    && !confirming) {
+                // Opt-in guard so DJ never hijacks whatever is playing by accident.
+                confirming = true;
+                service.setStatus("Click again to start DJ (it will replace what is playing).");
+            } else {
+                confirming = false;
+                service.playDj();
+            }
+            return true;
+        }
+        return super.mouseClicked(event, doubled);
+    }
+    *///?} else {
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (button == 0 && orbR > 0 && DjOrb.hit(mouseX, mouseY, orbX, orbY, orbR)) {
@@ -138,4 +162,5 @@ public class DjScreen extends SpotifyScreen {
         }
         return super.mouseClicked(mouseX, mouseY, button);
     }
+    //?}
 }

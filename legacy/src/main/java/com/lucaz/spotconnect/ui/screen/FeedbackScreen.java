@@ -10,7 +10,6 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.MultiLineEditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.Util;
 
 import java.net.URI;
 import java.net.URLEncoder;
@@ -110,7 +109,7 @@ public class FeedbackScreen extends SpotifyScreen {
                 + "&body=" + enc(body);
 
         try {
-            Util.getPlatform().openUri(new URI(url));
+            openInBrowser(new URI(url));
             lastSentAt = System.currentTimeMillis();
             sentAt = lastSentAt;
             draft = "";
@@ -222,6 +221,20 @@ public class FeedbackScreen extends SpotifyScreen {
 
     // ------------------------------------------------------------------ input
 
+    //? if >=1.21.9 {
+    /*@Override
+    public boolean mouseClicked(net.minecraft.client.input.MouseButtonEvent event, boolean doubled) {
+        double mouseX = event.x(), mouseY = event.y();
+        int button = event.button();
+        int boxBottom = contentY() + 36 + boxH;
+        if (button == 0 && mouseY >= boxBottom && mouseY <= boxBottom + 7
+                && mouseX >= contentX() && mouseX <= contentX() + contentW()) {
+            dragging = true;
+            return true;
+        }
+        return super.mouseClicked(event, doubled);
+    }
+    *///?} else {
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         int boxBottom = contentY() + 36 + boxH;
@@ -232,7 +245,26 @@ public class FeedbackScreen extends SpotifyScreen {
         }
         return super.mouseClicked(mouseX, mouseY, button);
     }
+    //?}
 
+    //? if >=1.21.9 {
+    /*@Override
+    public boolean mouseDragged(net.minecraft.client.input.MouseButtonEvent event, double dx, double dy) {
+        double mouseX = event.x(), mouseY = event.y();
+        int button = event.button();
+        if (dragging) {
+            int wanted = (int) (mouseY - (contentY() + 36));
+            int clamped = Math.max(48, Math.min(wanted, contentH() - 100));
+            if (clamped != boxH) {
+                boxH = clamped;
+                // Safe to rebuild: the text lives in draft, not in the widget.
+                rebuildWidgets();
+            }
+            return true;
+        }
+        return super.mouseDragged(event, dx, dy);
+    }
+    *///?} else {
     @Override
     public boolean mouseDragged(double mouseX, double mouseY, int button, double dx, double dy) {
         if (dragging) {
@@ -247,15 +279,36 @@ public class FeedbackScreen extends SpotifyScreen {
         }
         return super.mouseDragged(mouseX, mouseY, button, dx, dy);
     }
+    //?}
 
+    //? if >=1.21.9 {
+    /*@Override
+    public boolean mouseReleased(net.minecraft.client.input.MouseButtonEvent event) {
+        double mouseX = event.x(), mouseY = event.y();
+        int button = event.button();
+        dragging = false;
+        return super.mouseReleased(event);
+    }
+    *///?} else {
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
         dragging = false;
         return super.mouseReleased(mouseX, mouseY, button);
     }
+    //?}
 
     @Override
     protected boolean isTypingSomewhere() {
         return box != null && box.isFocused();
+    }
+
+
+    /** Util moved from net.minecraft to net.minecraft.util in 1.21.11. */
+    private static void openInBrowser(java.net.URI target) {
+        //? if >=1.21.11 {
+        /*net.minecraft.util.Util.getPlatform().openUri(target);
+        *///?} else {
+        net.minecraft.Util.getPlatform().openUri(target);
+        //?}
     }
 }

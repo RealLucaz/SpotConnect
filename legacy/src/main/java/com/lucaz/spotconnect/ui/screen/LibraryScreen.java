@@ -155,6 +155,19 @@ public class LibraryScreen extends SpotifyScreen {
         }
     }
 
+    //? if >=1.21.9 {
+    /*@Override
+    public boolean mouseClicked(net.minecraft.client.input.MouseButtonEvent event, boolean doubled) {
+        double mouseX = event.x(), mouseY = event.y();
+        int button = event.button();
+        int tabsY = contentY();
+        if (button == 0 && mouseY >= tabsY - 2 && mouseY < tabsY + 11 && mouseX >= contentX()) {
+            int idx = Tabs.hit(TAB_LABELS, contentX(), tabsY, mouseX, mouseY);
+            if (idx >= 0) { if (Tab.values()[idx] == Tab.LIKED) { open(new LikedSongsScreen(this)); return true; } tab = Tab.values()[idx]; ensureLoaded(); return true; }
+        }
+        return super.mouseClicked(event, doubled);
+    }
+    *///?} else {
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         int tabsY = contentY();
@@ -164,4 +177,5 @@ public class LibraryScreen extends SpotifyScreen {
         }
         return super.mouseClicked(mouseX, mouseY, button);
     }
+    //?}
 }

@@ -43,6 +43,67 @@ public class PillButton extends AbstractButton {
         return this;
     }
 
+    //? if >=1.21.11 {
+    /*@Override
+    protected void renderContents(@NotNull GuiGraphics g, int mouseX, int mouseY, float partial) {
+        boolean hovered = isHovered();
+        String key = animKey();
+        float hv = Anim.hover(key, hovered);
+
+        int x = getX();
+        int w = getWidth();
+        int h = getHeight();
+        // The primary button swells a pixel each side as it lights up.
+        int grow = style == Style.PRIMARY ? Math.round(Anim.ease(hv)) : 0;
+        // ...and squashes inward when pressed, so the button looks like it took the click.
+        float press = Anim.kicked(key);
+        grow -= Math.round(press * 2);
+        x -= grow;
+        w += grow * 2;
+        int y = getY() + Math.round(press * 1.5f);
+
+        int fill;
+        int textColour;
+        switch (style) {
+            case PRIMARY -> {
+                fill = Anim.mix(Theme.GREEN, Theme.GREEN_HOVER, hv);
+                textColour = 0xFF0A0A0A;
+            }
+            case SECONDARY -> {
+                fill = Anim.mix(Theme.CHIP, Theme.CARD_HOVER, hv);
+                textColour = Anim.mix(Theme.TEXT_MUTED, Theme.TEXT, hv);
+            }
+            default -> {
+                fill = Theme.alpha(Theme.ROW_HOVER, hv * 0.25f);
+                textColour = Anim.mix(Theme.TEXT_MUTED, Theme.TEXT, hv);
+            }
+        }
+
+        if (((fill >>> 24) & 0xFF) != 0) {
+            g.fill(x, y, x + w, y + h, fill);
+            // Chamfer the corners by a pixel; that's enough to look rounded at this size.
+            int bg = 0x00000000;
+            g.fill(x, y, x + 1, y + 1, bg);
+            g.fill(x + w - 1, y, x + w, y + 1, bg);
+            g.fill(x, y + h - 1, x + 1, y + h, bg);
+            g.fill(x + w - 1, y + h - 1, x + w, y + h, bg);
+        }
+        if (style == Style.SECONDARY) {
+            g.fill(x, y, x + 1, y + h, Theme.alpha(Theme.GREEN, 0.5f + 0.45f * hv));
+        }
+
+        var font = Minecraft.getInstance().font;
+        String label = getMessage().getString();
+        int iconW = icon == null ? 0 : 10;
+        int textW = font.width(label);
+        int startX = x + (w - textW - iconW) / 2;
+        if (icon != null) {
+            icon.paint(g, startX, y + (h - 7) / 2, 7, textColour);
+        }
+        g.drawString(font, UiText.fit(label, w - iconW - 6), startX + iconW,
+                y + (h - 8) / 2 + 1, textColour, false);
+    }
+    *///?} else {
     @Override
     protected void renderWidget(@NotNull GuiGraphics g, int mouseX, int mouseY, float partial) {
         boolean hovered = isHovered();
@@ -102,6 +163,7 @@ public class PillButton extends AbstractButton {
         g.drawString(font, UiText.fit(label, w - iconW - 6), startX + iconW,
                 y + (h - 8) / 2 + 1, textColour, false);
     }
+    //?}
 
     /**
      * Identity-based so two buttons that happen to share a label never share a hover or
@@ -115,11 +177,19 @@ public class PillButton extends AbstractButton {
 
     private String animKey;
 
+    //? if >=1.21.9 {
+    /*@Override
+    public void onPress(net.minecraft.client.input.InputWithModifiers input) {
+        Anim.kick(animKey());
+        if (action != null) action.run();
+    }
+    *///?} else {
     @Override
     public void onPress() {
         Anim.kick(animKey());
         if (action != null) action.run();
     }
+    //?}
 
     @Override
     protected void updateWidgetNarration(@NotNull NarrationElementOutput out) {

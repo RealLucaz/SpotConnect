@@ -5,7 +5,6 @@ import com.lucaz.spotconnect.util.Json;
 import com.mojang.logging.LogUtils;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
-import net.minecraft.Util;
 import org.slf4j.Logger;
 
 import java.awt.Desktop;
@@ -230,7 +229,7 @@ public final class SpotifyOAuth {
         // 1. Minecraft's own URL launcher - correct on every platform, and on Windows it
         //    does not involve a shell at all.
         try {
-            Util.getPlatform().openUri(uri);
+            openInBrowser(uri);
             return;
         } catch (Throwable ignored) { }
 
@@ -274,5 +273,15 @@ public final class SpotifyOAuth {
     private static String s256(String v) throws Exception {
         byte[] h = MessageDigest.getInstance("SHA-256").digest(v.getBytes(StandardCharsets.US_ASCII));
         return Base64.getUrlEncoder().withoutPadding().encodeToString(h);
+    }
+
+
+    /** Util moved from net.minecraft to net.minecraft.util in 1.21.11. */
+    private static void openInBrowser(java.net.URI target) {
+        //? if >=1.21.11 {
+        /*net.minecraft.util.Util.getPlatform().openUri(target);
+        *///?} else {
+        net.minecraft.Util.getPlatform().openUri(target);
+        //?}
     }
 }
