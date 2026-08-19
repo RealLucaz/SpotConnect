@@ -5,11 +5,17 @@ plugins {
     id 'java'
 }
 
+// Pre-26 Minecraft is obfuscated and its Fabric API modules use the intermediary
+// namespace, which Loom 1.17 rejects on its own. This bridges that.
+if (!stonecutter.current.version.startsWith('26')) {
+    apply plugin: 'dev.kikugie.loom-back-compat'
+}
+
 version = project.mod_version
 group = project.maven_group
 
 base {
-    archivesName = project.archives_base_name
+    archivesName = "${project.archives_base_name}-${stonecutter.current.version}"
 }
 
 repositories {
@@ -26,12 +32,18 @@ repositories {
 
 dependencies {
     // The Minecraft version we build against.
-    minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    minecraft "com.mojang:minecraft:${stonecutter.current.version}"
 
 
     // Fabric loader + the Fabric API (gives us keybinding + client-tick helpers).
-    implementation "net.fabricmc:fabric-loader:${project.loader_version}"
-    implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+    // 26.x ships unobfuscated so mods need no remapping; older versions do.
+    if (stonecutter.current.version.startsWith('26')) {
+        implementation "net.fabricmc:fabric-loader:${project.loader_version}"
+        implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+    } else {
+        modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+        modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+    }
 
     // Mod Menu, compile-only on purpose: it gives us the config-button entrypoint
     // without becoming a requirement. Without Mod Menu installed the entrypoint is
@@ -49,19 +61,30 @@ dependencies {
 processResources {
     inputs.property "version", project.version
     // Substitutes ${version} inside fabric.mod.json at build time.
+    inputs.property "minecraft_dependency", project.minecraft_dependency
+    inputs.property "loader_version", project.loader_version
+    inputs.property "java_version", project.java_version
     filesMatching("fabric.mod.json") {
-        expand "version": project.version
+        expand(
+            "version": project.version,
+            "minecraft_dependency": project.minecraft_dependency,
+            "loader_version": project.loader_version,
+            "java_version": project.java_version
+        )
     }
 }
 
 tasks.withType(JavaCompile).configureEach {
-    it.options.release = 25
+    it.options.release = project.java_version.toInteger()
     // -processing: we use annotations (@NotNull) with no annotation processor, which
     // is expected and would otherwise emit a warning on every build.
     it.options.compilerArgs << '-Xlint:all,-processing'
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_25
-    targetCompatibility = JavaVersion.VERSION_25
+    def jv = JavaVersion.toVersion(project.java_version)
+    sourceCompatibility = jv
+    targetCompatibility = jv
+    withSourcesJar()
 }
+

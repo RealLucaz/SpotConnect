@@ -11,6 +11,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 import net.minecraft.client.input.MouseButtonEvent;
+import com.lucaz.spotconnect.compat.Mc;
 
 /**
  * Positioning mode for the now-playing card. Dragging works here and nowhere else.
@@ -178,7 +179,7 @@ public class HudPositionScreen extends Screen {
     @Override
     public void onClose() {
         save();
-        if (minecraft != null) minecraft.setScreen(parent);
+        if (minecraft != null) Mc.setScreen(minecraft, parent);
     }
 
     @Override

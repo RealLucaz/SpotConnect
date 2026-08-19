@@ -15,6 +15,7 @@ import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 
 import java.net.URI;
+import com.lucaz.spotconnect.compat.Mc;
 
 /**
  * Walkthrough for creating a Spotify app, pasting its id in, and connecting.
@@ -220,7 +221,7 @@ public class SetupWizardScreen extends Screen {
     private void go(int delta) {
         if (delta > 0 && index == idStep()) saveClientId();
         if (delta > 0 && index == doneStep()) {
-            if (minecraft != null) minecraft.setScreen(new HomeScreen());
+            if (minecraft != null) Mc.setScreen(minecraft, new HomeScreen());
             return;
         }
         index = Math.max(0, Math.min(steps.length - 1, index + delta));
@@ -451,7 +452,7 @@ public class SetupWizardScreen extends Screen {
 
     @Override
     public void onClose() {
-        if (minecraft != null) minecraft.setScreen(parent);
+        if (minecraft != null) Mc.setScreen(minecraft, parent);
     }
 
     @Override

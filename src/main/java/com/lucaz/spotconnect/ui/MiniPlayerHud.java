@@ -7,6 +7,7 @@ import com.lucaz.spotconnect.spotify.SpotifyModels;
 import com.lucaz.spotconnect.spotify.SpotifyModels.PlaybackState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import com.lucaz.spotconnect.compat.Mc;
 
 /**
  * The now-playing card drawn over the world.
@@ -59,7 +60,7 @@ public final class MiniPlayerHud {
         ModConfig cfg = cfg();
         if (!cfg.bool(Defaults.HUD_ENABLED)) return;
         if (!SpotifyService.isCreated()) return;
-        if (mc.options.hideGui || mc.screen != null) return;
+        if (Mc.hudHidden(mc) || Mc.screen(mc) != null) return;
 
         SpotifyService service = SpotifyService.get();
         if (!service.isConnected()) return;

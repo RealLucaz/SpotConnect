@@ -29,6 +29,7 @@ import com.lucaz.spotconnect.config.ModConfig;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.input.KeyEvent;
+import com.lucaz.spotconnect.compat.Mc;
 
 /**
  * Shared chrome for every Spotify screen: nav rail, content area, playback bar.
@@ -479,11 +480,11 @@ public abstract class SpotifyScreen extends Screen {
     }
 
     protected void back() {
-        if (minecraft != null) minecraft.setScreen(parent);
+        if (minecraft != null) Mc.setScreen(minecraft, parent);
     }
 
     public void open(Screen screen) {
-        if (minecraft != null) minecraft.setScreen(screen);
+        if (minecraft != null) Mc.setScreen(minecraft, screen);
     }
 
     @Override

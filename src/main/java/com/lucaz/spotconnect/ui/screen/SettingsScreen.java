@@ -18,6 +18,7 @@ import net.minecraft.client.gui.screens.Screen;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.client.input.MouseButtonEvent;
+import com.lucaz.spotconnect.compat.Mc;
 
 /**
  * Settings, grouped into sections with a category rail of their own.
@@ -182,14 +183,14 @@ public class SettingsScreen extends SpotifyScreen {
                         "Tell the author what broke, or what you want next",
                         "Open", () -> {
                             if (minecraft != null) {
-                                minecraft.setScreen(new FeedbackScreen(this));
+                                Mc.setScreen(minecraft, new FeedbackScreen(this));
                             }
                         }),
                 new Option.Action("Reset setup",
                         "Forgets your Client ID and Spotify login, then starts the walkthrough again",
                         "Reset", () -> {
                             service.resetSetup();
-                            if (minecraft != null) minecraft.setScreen(new SetupScreen());
+                            if (minecraft != null) Mc.setScreen(minecraft, new SetupScreen());
                         }))));
 
         categories.add(new Category("Startup", Icons::gear, "startup.", List.of(

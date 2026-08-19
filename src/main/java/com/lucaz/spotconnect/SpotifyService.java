@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.RejectedExecutionException;
+import com.lucaz.spotconnect.compat.Mc;
 
 /**
  * The one object the UI talks to.
@@ -425,7 +426,7 @@ public final class SpotifyService implements SpotifyDeviceManager.Host, SpotifyA
     private boolean isInterfaceOpen() {
         try {
             Minecraft mc = Minecraft.getInstance();
-            return mc != null && mc.screen instanceof SpotifyScreen;
+            return mc != null && Mc.screen(mc) instanceof SpotifyScreen;
         } catch (Exception e) {
             return false;
         }

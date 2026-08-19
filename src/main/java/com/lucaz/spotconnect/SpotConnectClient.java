@@ -20,6 +20,7 @@ import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
 import com.lucaz.spotconnect.config.ModConfig;
 import com.lucaz.spotconnect.ui.SpotifyScreen;
+import com.lucaz.spotconnect.compat.Mc;
 
 /**
  * Client entrypoint: keybinds, the world HUD, and a clean shutdown of the dedicated
@@ -109,7 +110,7 @@ public final class SpotConnectClient implements ClientModInitializer {
      * No auto-resume on rejoining a world. Play is one keypress.
      */
     private void pauseOnTitleScreen(Minecraft client) {
-        boolean onTitle = client.screen instanceof TitleScreen;
+        boolean onTitle = Mc.screen(client) instanceof TitleScreen;
         boolean entered = onTitle && !wasOnTitleScreen;
         wasOnTitleScreen = onTitle;
         if (!entered) return;
@@ -176,21 +177,21 @@ public final class SpotConnectClient implements ClientModInitializer {
     }
 
     private void openUi(Minecraft client) {
-        Screen current = client.screen;
+        Screen current = Mc.screen(client);
         if (current instanceof SpotifyScreen
                 || current instanceof SetupScreen) {
             return;   // already open
         }
         // Nothing works off-Windows, so send them to the screen that says why.
         if (!SpotifyConfig.SUPPORTED) {
-            client.setScreen(new SetupScreen());
+            Mc.setScreen(client, new SetupScreen());
             return;
         }
         // No client id means nothing can work yet, whatever else is on disk. A stored
         // token from a previous app is useless without the app it was issued for, so this
         // has to come before the stored-authorization check below.
         if (!SpotifyConfig.hasClientId()) {
-            client.setScreen(new SetupScreen());
+            Mc.setScreen(client, new SetupScreen());
             return;
         }
         SpotifyService service = SpotifyService.get();
@@ -201,13 +202,13 @@ public final class SpotConnectClient implements ClientModInitializer {
         boolean skipSetup = service.isConnected() || service.isBusy()
                 || service.hasStoredAuthorization();
         if (!skipSetup) {
-            client.setScreen(new SetupScreen());
+            Mc.setScreen(client, new SetupScreen());
             return;
         }
         // "Open on Home" off means reopen wherever the user left off.
         boolean alwaysHome = ModConfig.get()
                 .bool(ModConfig.Defaults.START_OPEN_HOME);
         Screen resume = alwaysHome ? null : SpotifyScreen.lastScreen();
-        client.setScreen(resume != null ? resume : new HomeScreen());
+        Mc.setScreen(client, resume != null ? resume : new HomeScreen());
     }
 }

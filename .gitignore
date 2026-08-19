@@ -12,3 +12,8 @@ out/
 .project
 
 .claude/
+
+# Stonecutter per-version build output
+versions/*/build/
+versions/*/.gradle/
+dist/

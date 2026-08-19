@@ -10,6 +10,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 import com.lucaz.spotconnect.ui.SpotifyScreen;
+import com.lucaz.spotconnect.compat.Mc;
 
 /**
  * First-run screen. One button, and a status line that always says what is happening.
@@ -40,7 +41,7 @@ public class SetupScreen extends Screen {
 
     @Override
     public void onClose() {
-        if (minecraft != null) minecraft.setScreen(parent);
+        if (minecraft != null) Mc.setScreen(minecraft, parent);
     }
 
     @Override
@@ -60,7 +61,7 @@ public class SetupScreen extends Screen {
                         b -> {
                             if (SpotifyConfig.hasClientId()) service.connect();
                             else if (minecraft != null) {
-                                minecraft.setScreen(new SetupWizardScreen(this));
+                                Mc.setScreen(minecraft, new SetupWizardScreen(this));
                             }
                         })
                 .bounds(cx - 90, y, 180, 20)
@@ -72,7 +73,7 @@ public class SetupScreen extends Screen {
         if (ready && supported) {
             // Still reachable afterwards, for a typo or a second Spotify account.
             addRenderableWidget(Button.builder(Component.literal("Change Client ID"),
-                            b -> { if (minecraft != null) minecraft.setScreen(new SetupWizardScreen(this)); })
+                            b -> { if (minecraft != null) Mc.setScreen(minecraft, new SetupWizardScreen(this)); })
                     .bounds(cx - 90, y, 180, 18).build());
             y += 26;
         }
@@ -89,7 +90,7 @@ public class SetupScreen extends Screen {
         super.tick();
         animTicks++;
         if (service.isConnected() && minecraft != null) {
-            minecraft.setScreen(new HomeScreen());
+            Mc.setScreen(minecraft, new HomeScreen());
             return;
         }
         if (connectButton != null) {
