@@ -97,11 +97,6 @@ public class SetupScreen extends Screen {
         }
     }
 
-    /**
-     * Everything behind the buttons. Same reason as the walkthrough screen:
-     * Screen.render() opens by blurring the framebuffer, so anything drawn before
-     * super.render() gets the blur painted over it.
-     */
     /** Top of the centred block. Keeps the whole page anchored to one number. */
     private int contentTop() {
         return Math.max(16, height / 2 - 128);

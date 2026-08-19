@@ -1,7 +1,8 @@
 {
   "key.categories.spotconnect": "SpotConnect Premium",
+  "key.category.spotconnect.main": "SpotConnect Premium",
+  "key.spotconnect.next": "Next Track",
   "key.spotconnect.open": "Open Spotify",
   "key.spotconnect.playpause": "Play / Pause",
-  "key.spotconnect.next": "Next Track",
   "key.spotconnect.previous": "Previous Track"
 }

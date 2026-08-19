@@ -197,10 +197,6 @@ public final class SpotifyModels {
     // ------------------------------------------------------------------ helpers
 
     /**
-     * Playlist and album track lists wrap each entry in a container object. Entries can
-     * legitimately be null (a track removed from Spotify's catalogue), so those are skipped.
-     */
-    /**
      * Playlist and saved-track entries wrap each track in a container, and the field name
      * isn't consistent: /v1/me/tracks uses "track", /v1/playlists/{id} uses "item"
      * (2026-08-12). We accept either, and fall back to scanning for any nested object with

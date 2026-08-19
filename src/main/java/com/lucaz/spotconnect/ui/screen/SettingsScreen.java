@@ -171,7 +171,10 @@ public class SettingsScreen extends SpotifyScreen {
                 new Option.Info("Client ID", () -> {
                     String id = SpotifyConfig.clientId();
                     if (id.isEmpty()) return "not set";
-                    // Never show the whole thing on a screen someone might be streaming.
+                    // Masked because this screen gets streamed. Length-checked because the
+                    // config is a text file anyone can hand-edit, and a short value used to
+                    // throw StringIndexOutOfBounds and take the whole settings screen down.
+                    if (id.length() < 12) return "set (" + id.length() + " chars)";
                     return id.substring(0, 6) + "..." + id.substring(id.length() - 4);
                 }),
                 new Option.Info("Connection", () -> service.stateLabel()),

@@ -46,6 +46,12 @@ public class PlaylistScreen extends TrackListScreen {
             // The full fetch carries the description and artwork the browse list omits.
             if (detail.playlist() != null) playlist = detail.playlist();
             tracks = detail.tracks();
+            if (detail.tracksWithheld()) {
+                // Say so instead of showing a blank page that looks like a mod bug.
+                list.emptyText("Spotify does not let apps read this playlist's tracks. "
+                        + "Press Play to play it anyway - playback does not need the list.");
+                service.setStatus("Spotify withheld this playlist's track list.");
+            }
             list.setItems(tracks);
         });
     }

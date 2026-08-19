@@ -185,8 +185,11 @@ public final class ArtworkCache {
         g.fill(x, y, x + size, y + size, accent);
         g.fillGradient(x, y, x + size, y + size,
                 Theme.alpha(0xFFFFFFFF, 0.10f), Theme.alpha(0xFF000000, 0.25f));
-        if (size >= 12) {
-            String initial = label.trim().substring(0, 1).toUpperCase(Locale.ROOT);
+        // Blank and whitespace-only names exist (untitled playlists), and trim() then
+        // leaves nothing to take a character from - which threw mid-render.
+        String trimmed = label == null ? "" : label.trim();
+        if (size >= 12 && !trimmed.isEmpty()) {
+            String initial = trimmed.substring(0, 1).toUpperCase(Locale.ROOT);
             var font = Minecraft.getInstance().font;
             g.text(font, initial,
                     x + (size - font.width(initial)) / 2, y + (size - 8) / 2,

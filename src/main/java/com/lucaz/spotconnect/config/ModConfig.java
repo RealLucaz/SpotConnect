@@ -93,11 +93,19 @@ public final class ModConfig {
         public static final String START_OPEN_HOME   = "startup.openHome";
     }
 
+    /**
+     * Settings, in declaration order so the saved file stays readable.
+     *
+     * Every accessor below is synchronized. The render thread writes when someone changes
+     * a setting, while the playback poller and the worker pool read constantly - and
+     * save() iterates the whole map, which a concurrent write would break outright.
+     * The map holds ~50 entries, so locking costs nothing measurable.
+     */
     private final Map<String, Object> values = new LinkedHashMap<>();
 
     private ModConfig() { applyDefaults(); }
 
-    private void applyDefaults() {
+    private synchronized void applyDefaults() {
         put(Defaults.HUD_ENABLED, true);
         put(Defaults.HUD_ALWAYS_ON, false);
         put(Defaults.HUD_X, 0.006);
@@ -153,7 +161,7 @@ public final class ModConfig {
         put(Defaults.START_OPEN_HOME, true);
     }
 
-    private void put(String k, Object v) { values.put(k, v); }
+    private synchronized void put(String k, Object v) { values.put(k, v); }
 
     public static synchronized ModConfig get() {
         if (instance == null) {
@@ -165,43 +173,43 @@ public final class ModConfig {
 
     // ---- typed access ------------------------------------------------------
 
-    public String string(String key) {
+    public synchronized String string(String key) {
         Object v = values.get(key);
         return v == null ? "" : String.valueOf(v);
     }
 
-    public boolean bool(String key) {
+    public synchronized boolean bool(String key) {
         return values.get(key) instanceof Boolean b && b;
     }
 
-    public int integer(String key) {
+    public synchronized int integer(String key) {
         return values.get(key) instanceof Number n ? n.intValue() : 0;
     }
 
-    public double number(String key) {
+    public synchronized double number(String key) {
         return values.get(key) instanceof Number n ? n.doubleValue() : 0;
     }
 
-    public void set(String key, Object value) {
+    public synchronized void set(String key, Object value) {
         values.put(key, value);
     }
 
-    public void toggle(String key) {
+    public synchronized void toggle(String key) {
         values.put(key, !bool(key));
     }
 
     /** Adjusts a numeric setting and clamps it. */
-    public void bump(String key, int delta, int min, int max) {
+    public synchronized void bump(String key, int delta, int min, int max) {
         values.put(key, Math.max(min, Math.min(max, integer(key) + delta)));
     }
 
-    public void bump(String key, double delta, double min, double max) {
+    public synchronized void bump(String key, double delta, double min, double max) {
         double v = Math.max(min, Math.min(max, number(key) + delta));
         values.put(key, Math.round(v * 1000.0) / 1000.0);
     }
 
     /** Restores one section (everything sharing a key prefix) to its defaults. */
-    public void resetSection(String prefix) {
+    public synchronized void resetSection(String prefix) {
         ModConfig fresh = new ModConfig();
         for (String key : fresh.values.keySet()) {
             if (key.startsWith(prefix)) values.put(key, fresh.values.get(key));
@@ -209,13 +217,13 @@ public final class ModConfig {
         save();
     }
 
-    public void resetAll() {
+    public synchronized void resetAll() {
         applyDefaults();
         save();
     }
 
     /** Puts the world card back where it started. */
-    public void resetHudPosition() {
+    public synchronized void resetHudPosition() {
         set(Defaults.HUD_X, 0.006);
         set(Defaults.HUD_Y, 0.012);
         set(Defaults.HUD_SCALE, 1.0);
@@ -228,7 +236,7 @@ public final class ModConfig {
         return FabricLoader.getInstance().getConfigDir().resolve("spotconnect.json");
     }
 
-    private void load() {
+    private synchronized void load() {
         Path path = file();
         if (!Files.exists(path)) { save(); return; }
         try {
@@ -248,7 +256,7 @@ public final class ModConfig {
         }
     }
 
-    public void save() {
+    public synchronized void save() {
         try {
             Path path = file();
             Files.createDirectories(path.getParent());

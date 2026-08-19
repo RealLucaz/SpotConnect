@@ -59,7 +59,13 @@ public final class SpotifyLibrary {
 
     public record AlbumDetail(Album album, List<Track> tracks) { }
 
-    public record PlaylistDetail(Playlist playlist, List<Track> tracks) { }
+    /**
+     * @param tracksWithheld true when Spotify returned the playlist but no track list.
+     *        Distinguishes "this playlist is empty" from "we are not allowed to read it",
+     *        which look identical otherwise and left the page silently blank.
+     */
+    public record PlaylistDetail(Playlist playlist, List<Track> tracks,
+                                 boolean tracksWithheld) { }
 
     public record ArtistDetail(Artist artist, List<Track> topTracks,
                                List<Album> albums, List<Album> singles) { }
@@ -172,11 +178,16 @@ public final class SpotifyLibrary {
             // Defensive: some shapes hand back the item array directly.
             tracks = SpotifyModels.tracksFromItems(paging, "track", null);
         }
-        if (tracks.isEmpty()) {
-            LOGGER.warn("[LIBRARY] Playlist {} parsed 0 tracks (keys present: {})",
-                    id, root.keySet());
+
+        // No tracks key at all means Spotify answered 200 and simply left the list out.
+        // Verified 2026-08-18 across owned and unowned playlists: the key is absent and
+        // /v1/playlists/{id}/tracks answers 403, so there is no second endpoint to try.
+        boolean withheld = paging == null && tracks.isEmpty();
+        if (withheld) {
+            LOGGER.warn("[LIBRARY] Playlist {} came back without a track list "
+                    + "(keys: {}) - Spotify withholds these from this app.", id, root.keySet());
         }
-        return new PlaylistDetail(p, tracks);
+        return new PlaylistDetail(p, tracks, withheld);
     }
 
     public AlbumDetail album(String id) {

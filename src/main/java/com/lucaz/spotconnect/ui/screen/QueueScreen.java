@@ -22,8 +22,10 @@ import net.minecraft.network.chat.Component;
 public class QueueScreen extends SpotifyScreen {
 
     private static final int HEADER_H = 42;
-    /** Client ticks between refreshes (20/s), so the queue tracks reality without spamming. */
-    /** 60 ticks (3s) was another 1,200 requests/hour stacked on top of both pollers. */
+    /**
+     * Client ticks between refreshes (20/s), so the queue tracks reality without spamming.
+     * 60 ticks (3s) was another 1,200 requests/hour stacked on top of both pollers.
+     */
     private static final int REFRESH_TICKS = 200;
 
     private final ListPanel<Track> upNext;
