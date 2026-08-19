@@ -250,6 +250,10 @@ public final class ModConfig {
                 if (current instanceof Boolean && v instanceof Boolean) values.put(key, v);
                 else if (current instanceof Integer && v instanceof Number n) values.put(key, n.intValue());
                 else if (current instanceof Double && v instanceof Number n) values.put(key, n.doubleValue());
+                // Strings were missing here, so auth.clientId was written to disk
+                // correctly, read back, then dropped on the floor - every launch reset
+                // it to the default and re-ran the setup walkthrough.
+                else if (current instanceof String && v instanceof String str) values.put(key, str);
             }
         } catch (Exception e) {
             LOGGER.warn("[CONFIG] Could not read {} - using defaults: {}", path, e.toString());
