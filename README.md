@@ -119,9 +119,9 @@ Known limitations, none of which I can fix from here:
   mid-track (watched it walk 60 → 36 with every mod-side write disabled).
 - **WebP covers fall back to a placeholder** - ImageIO has no WebP reader.
 
-`archive/rinku-poc/` is the earlier embedded-browser experiment, kept as a record. It was
-ruled out because the available CEF builds lack AAC, and Widevine VMP signing makes
-Spotify DRM unusable in an unsigned embedded browser.
+Playback deliberately does not use an embedded browser. That was tried first and ruled
+out: the available CEF builds lack AAC, and Widevine VMP signing makes Spotify DRM
+unusable in an unsigned embedded browser.
 
 ## License
 
