@@ -274,7 +274,14 @@ public final class SpotifyService implements SpotifyDeviceManager.Host, SpotifyA
         state = ConnectionState.CONNECTING;
         loginCancelled = false;
         setStatus("Connecting to Spotify...");
-        worker.submit(this::connectBlocking);
+        try {
+            worker.submit(this::connectBlocking);
+        } catch (RejectedExecutionException e) {
+            // Only reachable if the pools really are gone. Say so rather than leaving
+            // the button disabled with no explanation.
+            fail("Connection worker is not running - restart Minecraft.");
+            LOGGER.warn("[SPOTIFY] connect() rejected: worker pool is shut down.");
+        }
     }
 
     private void connectBlocking() {
@@ -726,7 +733,20 @@ public final class SpotifyService implements SpotifyDeviceManager.Host, SpotifyA
      * tokens that were already deleted.
      */
     public void resetSetup() {
-        try { shutdown(); } catch (Exception ignored) { }
+        // Deliberately NOT shutdown(). That is the game-exit path: its shutdownNow()
+        // calls leave the executors and the Win32 helper permanently dead, so every
+        // later connect() queued work that could never run - the button just sat
+        // disabled and nothing reached the log.
+        loginCancelled = true;
+        Thread t = monitorThread;
+        if (t != null) t.interrupt();
+        monitorThread = null;
+
+        // Must go back to false. connectBlocking() skips launching Chrome when this is
+        // true, so a reconnect after a reset was talking to a browser that had just
+        // been killed.
+        started = false;
+
         tokens.clear();
         try { Files.deleteIfExists(SpotifyConfig.DEVICE_FILE); }
         catch (Exception ignored) { }
@@ -736,6 +756,11 @@ public final class SpotifyService implements SpotifyDeviceManager.Host, SpotifyA
         state = ConnectionState.IDLE;
         setStatus("Setup cleared. Press M to start again.");
         LOGGER.info("[SPOTIFY] Setup reset - client id, tokens and device forgotten.");
+
+        // Killing Chrome can take a moment, so keep it off the render thread.
+        worker.submit(() -> {
+            try { browser.stop(true); } catch (Exception ignored) { }
+        });
     }
 
     /**
